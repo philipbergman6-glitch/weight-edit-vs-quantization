@@ -1,7 +1,7 @@
 # Restate what this repo adds
 
 Type: grilling
-Status: open
+Status: resolved
 Blocked by: none
 Map: [does the edit survive quantization?](../map.md)
 
@@ -15,3 +15,12 @@ Decide with Philip:
 - Is the question still worth a two-minute interview point, and how is it worded honestly given the 4-bit answer is partly known?
 - Which README lines get corrected (the six corrections listed in ticket 02's answer), and does Philip make those edits or approve them?
 - Does knowing TurinTech's result change how the prediction is written? (It must be stated in the prediction that this result was known.)
+
+## Answer
+
+Resolved 2026-11-12 with Philip (yes to all four recommendations).
+
+- **What the repo adds:** the base model and the edited model side by side at full precision, 8-bit and a stock (uncalibrated) 4-bit file on one setup, so the reduction in looping is measured at each precision level. Not claimed: being the first 4-bit test of the edit.
+- **Continue:** yes. The honest story includes "I re-checked the prior work, found my gap claim out of date and narrowed it."
+- **README corrections:** drafted by the agent, approved by Philip as a diff before commit.
+- **Prediction:** `PREDICTION.md` must state that TurinTech's 4-bit result (46.95% vs 45.20%, same share at the token limit) was known when it was written.

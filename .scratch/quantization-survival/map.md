@@ -29,6 +29,7 @@ A locked experiment spec: every setting needed to run the six versions and two b
 - [Re-check the prior-work claims and MIT's exact test procedure](issues/02-prior-work-and-mit-procedure.md): the "still open" claim is out of date (a 500-question BF16 vs 4-bit test of the edited model exists); six README corrections; MIT's full procedure recovered.
 - [Where MATH-500 comes from and how answers are graded](issues/03-math-500-source-and-grading.md): `HuggingFaceH4/MATH-500`, last boxed answer checked with math-verify 0.9.0, 200 stratified questions, Wilson intervals and McNemar test.
 - [Download both models, record hashes, diff the weights, confirm the edit](issues/04-download-hash-diff.md): both models on disk and hash-verified; stored precision is BF16; the edit is exactly two tensors (layers 15 and 19 `down_proj`, 64 columns each), narrow but large where it lands.
+- [Restate what this repo adds](issues/09-restate-what-this-repo-adds.md): base and edited side by side at full, 8-bit and stock 4-bit on one setup; continue; README corrected with Philip's approval; the prediction states the known 4-bit result.
 
 ## Not yet specified
 
