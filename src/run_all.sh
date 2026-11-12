@@ -4,7 +4,7 @@
 #        src/run_all.sh B        (half B, only after half A is complete)
 set -euo pipefail
 HALF=${1:?usage: src/run_all.sh A|B}
-if pmset -g batt | grep -q "Battery Power"; then
+if [[ -z "${ALLOW_BATTERY:-}" ]] && pmset -g batt | grep -q "Battery Power"; then
   echo "On battery power: plug the laptop in before a long run." >&2; exit 1
 fi
 Q=data/math500_test.jsonl; IDS=data/question_ids.json; G=models/gguf
