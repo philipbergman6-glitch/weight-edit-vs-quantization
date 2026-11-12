@@ -1,7 +1,7 @@
 # Download both models, record hashes, diff the weights, confirm the edit
 
 Type: task
-Status: open
+Status: claimed
 Blocked by: none
 Map: [does the edit survive quantization?](../map.md)
 

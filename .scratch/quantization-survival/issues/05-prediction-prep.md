@@ -2,7 +2,7 @@
 
 Type: grilling
 Status: open
-Blocked by: 04
+Blocked by: 04, 09
 Map: [does the edit survive quantization?](../map.md)
 
 ## Question

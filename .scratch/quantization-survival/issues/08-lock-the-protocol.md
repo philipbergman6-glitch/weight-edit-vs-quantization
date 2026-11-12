@@ -2,7 +2,7 @@
 
 Type: grilling
 Status: open
-Blocked by: 02, 03, 07
+Blocked by: 02, 03, 07, 09
 Map: [does the edit survive quantization?](../map.md)
 
 ## Question
@@ -15,6 +15,8 @@ Decide, with Philip, everything the run needs:
 - Exactly what 8-bit and 4-bit mean in the chosen tool.
 - The two baselines on the base model: how thinking is turned off; which repetition penalty value.
 - How a response is scored as looping, and how accuracy is graded.
+- Which token-limit measure the table reports: MIT's (any response cut at the limit) or the glossary's looping (cut at the limit with no final answer), or both.
+- What the second baseline is, given MIT's settings already include presence penalty 1.5.
 - How uncertainty is reported with the numbers.
 - The guaranteed minimum run: the smallest run that still answers the question and is certain to finish by Sat 2026-11-14, and the order in which runs happen so the most important rows finish first.
 

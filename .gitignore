@@ -9,3 +9,5 @@ results/raw/
 .venv/
 __pycache__/
 .DS_Store
+# agent worktrees
+.claude/
