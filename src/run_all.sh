@@ -8,7 +8,11 @@ if pmset -g batt | grep -q "Battery Power"; then
   echo "On battery power: plug the laptop in before a long run." >&2; exit 1
 fi
 Q=data/math500_test.jsonl; IDS=data/question_ids.json; G=models/gguf
-run() { uv run python -I -m wevq.run "$@"; uv run python -I -m wevq.table $Q $IDS results/raw results > /dev/null; }
+# a scorer failure is reported but must not stop the remaining rows
+run() {
+  uv run python -I -m wevq.run "$@"
+  uv run python -I -m wevq.table $Q $IDS results/raw results > /dev/null || echo "TABLE NOT REBUILT after $1: see the error above" >&2
+}
 for LEVEL in BF16 Q4_K_M Q8_0; do
   for MODEL in base edited; do
     run $MODEL-$LEVEL $G/$MODEL-$LEVEL.gguf $Q $IDS $HALF

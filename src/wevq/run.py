@@ -16,10 +16,14 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
+from wevq.questions import load
+
 PORT = 8097
+SERVER_BUILD = "b12110-cd959bae9"  # llama.cpp 0.9.0; any other build is refused
 STREAMS = 8
 CONTEXT_PER_STREAM = 34816
 MAX_NEW_TOKENS = 32768
@@ -48,9 +52,31 @@ def call(path: str, body: dict | None = None, timeout: float = 4 * 3600) -> dict
         return json.load(r)
 
 
-def start_server(gguf: str, log_path: str) -> subprocess.Popen:
-    cmd = ["llama-server", "-m", gguf, "--offline", "--host", "127.0.0.1", "--port", str(PORT), "-ngl", "all",
-           "-c", str(CONTEXT_PER_STREAM * STREAMS), "-np", str(STREAMS), "--no-context-shift", "--jinja"]
+def server_command(gguf: str, thinking: bool, sampling: dict) -> list[str]:
+    """The settings go on the command line as well as in every request."""
+    return ["llama-server", "-m", gguf, "--offline", "--host", "127.0.0.1", "--port", str(PORT), "-ngl", "all",
+            "-c", str(CONTEXT_PER_STREAM * STREAMS), "-np", str(STREAMS), "--no-context-shift", "--jinja",
+            "--chat-template-kwargs", json.dumps({"enable_thinking": thinking}),
+            "--temp", str(sampling["temperature"]), "--top-k", str(sampling["top_k"]), "--top-p", str(sampling["top_p"]),
+            "--min-p", str(sampling["min_p"]), "--presence-penalty", str(sampling["presence_penalty"]),
+            "--frequency-penalty", str(sampling["frequency_penalty"]), "--repeat-penalty", str(sampling["repeat_penalty"]),
+            "--repeat-last-n", str(sampling["repeat_last_n"]), "--samplers", ";".join(sampling["samplers"]),
+            "--seed", str(sampling["seed"])]
+
+
+def port_in_use() -> bool:
+    try:
+        urllib.request.urlopen(f"http://127.0.0.1:{PORT}/health", timeout=2).close()
+    except urllib.error.HTTPError:
+        return True
+    except OSError:
+        return False
+    return True
+
+
+def start_server(cmd: list[str], log_path: str) -> subprocess.Popen:
+    if port_in_use():
+        raise SystemExit(f"something already answers on port {PORT} (a leftover llama-server?); stop it first")
     proc = subprocess.Popen(cmd, stdout=open(log_path, "w"), stderr=subprocess.STDOUT)
     for _ in range(600):
         if proc.poll() is not None:
@@ -115,8 +141,13 @@ def main() -> None:
     ap.add_argument("--out-dir", default="results/raw")
     args = ap.parse_args()
 
-    by_id = {q["unique_id"]: q for q in map(json.loads, open(args.questions))}
-    ids = json.load(open(args.ids))[args.half][: args.limit]
+    if args.limit is not None and args.limit < 1:
+        raise SystemExit("--limit must be at least 1")
+    if args.max_tokens < 1:
+        raise SystemExit("--max-tokens must be at least 1")
+    by_id = {q["unique_id"]: q for q in load(args.questions)}
+    id_file = json.load(open(args.ids))
+    ids = id_file[args.half][: args.limit]
     missing = [i for i in ids if i not in by_id]
     if missing:
         raise SystemExit(f"{len(missing)} question ids not in the question file, e.g. {missing[0]}")
@@ -126,26 +157,39 @@ def main() -> None:
     os.makedirs(args.out_dir, exist_ok=True)
     out_path = os.path.join(args.out_dir, f"{args.row}.jsonl")
     meta_path = os.path.join(args.out_dir, f"{args.row}.meta.json")
+    cmd = server_command(args.gguf, thinking, sampling)
     meta = {"row": args.row, "gguf": args.gguf, "gguf_bytes": os.path.getsize(args.gguf), "thinking": thinking,
             "max_new_tokens": args.max_tokens, "sampling": sampling, "streams": STREAMS,
-            "context_per_stream": CONTEXT_PER_STREAM, "instruction": INSTRUCTION}
-    if os.path.exists(meta_path):
-        old = json.load(open(meta_path))
-        if {k: old.get(k) for k in meta} != meta:
-            raise SystemExit(f"{meta_path} was written with different settings; refusing to mix runs in one file")
+            "context_per_stream": CONTEXT_PER_STREAM, "instruction": INSTRUCTION,
+            "server_command": cmd, "server_build": SERVER_BUILD}
+    if os.path.exists(out_path) and not os.path.exists(meta_path):
+        raise SystemExit(f"{out_path} exists without {meta_path}; its settings are unknown, refusing to add to it")
+    if os.path.exists(meta_path) and json.load(open(meta_path)) != meta:
+        raise SystemExit(f"{meta_path} was written with different settings; refusing to mix runs in one file")
     done = set()
     if os.path.exists(out_path):
-        done = {json.loads(line)["unique_id"] for line in open(out_path)}
+        for number, line in enumerate(open(out_path), 1):
+            try:
+                done.add(json.loads(line)["unique_id"])
+            except (ValueError, KeyError) as e:
+                raise SystemExit(f"{out_path} line {number} is not a complete record ({e}); remove that line and re-run")
+    if args.half == "B":
+        unfinished = [i for i in id_file["A"] if i not in done]
+        if unfinished:
+            raise SystemExit(f"[{args.row}] half A is not complete ({len(unfinished)} questions left); run half A first")
     todo = [i for i in ids if i not in done]
     print(f"[{args.row}] half {args.half}: {len(ids)} questions, {len(done & set(ids))} already done, {len(todo)} to run", flush=True)
     if not todo:
         return
 
     awake = subprocess.Popen(["caffeinate", "-i", "-m", "-s", "-w", str(os.getpid())])
-    server = start_server(args.gguf, os.path.join(args.out_dir, f"{args.row}.server.log"))
+    server = start_server(cmd, os.path.join(args.out_dir, f"{args.row}.server.log"))
     try:
         props = call("/props", timeout=30)
-        meta["server_build"] = props.get("build_info")
+        if props["build_info"] != SERVER_BUILD:
+            raise SystemExit(f"llama-server build is {props['build_info']!r}, expected {SERVER_BUILD!r}")
+        if os.path.realpath(props["model_path"]) != os.path.realpath(args.gguf):
+            raise SystemExit(f"server loaded {props['model_path']!r}, not {args.gguf!r}")
         json.dump(meta, open(meta_path, "w"), indent=1)
         lock, started, count = threading.Lock(), time.time(), [0]
 
@@ -162,9 +206,13 @@ def main() -> None:
                 print(f"[{args.row}] {count[0]}/{len(todo)} {uid} tokens={record['tokens_generated']} "
                       f"limit={record['hit_token_limit']} elapsed={elapsed / 3600:.2f}h eta={eta:.2f}h", flush=True)
 
-        with ThreadPoolExecutor(STREAMS) as pool:
+        pool = ThreadPoolExecutor(STREAMS)
+        try:
             for future in [pool.submit(work, uid) for uid in todo]:
                 future.result()
+        finally:
+            # on a failure, drop the queued questions instead of running them for hours first
+            pool.shutdown(wait=False, cancel_futures=True)
     finally:
         server.terminate()
         server.wait(timeout=60)

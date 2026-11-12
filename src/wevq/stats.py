@@ -30,8 +30,12 @@ def survives_ratio(base_ref, edited_ref, base_lvl, edited_lvl, resamples: int = 
     """Reduction in looping at a level divided by the reduction at the reference level.
 
     Each argument is a list of 0/1 looping flags over the same questions in the same order.
-    Returns (ratio, low, high) with a 95% paired bootstrap interval over questions.
+    Returns (ratio, low, high, undefined): a 95% paired bootstrap interval over questions, and the
+    number of resamples left out because their reference reduction was exactly zero.
     """
+    for flags in (base_ref, edited_ref, base_lvl, edited_lvl):
+        if any(f not in (0, 1) for f in flags):
+            raise ValueError("looping flags must be 0 or 1")
     n = len(base_ref)
     if not (n == len(edited_ref) == len(base_lvl) == len(edited_lvl)) or n == 0:
         raise ValueError("all four lists must be the same non-zero length")
@@ -47,4 +51,4 @@ def survives_ratio(base_ref, edited_ref, base_lvl, edited_lvl, resamples: int = 
     draws = sorted(r for r in (ratio([rng.randrange(n) for _ in range(n)]) for _ in range(resamples)) if r is not None)
     if len(draws) < 0.99 * resamples:
         raise ValueError("reference reduction is too close to zero for a stable interval")
-    return point, draws[int(0.025 * len(draws))], draws[int(0.975 * len(draws)) - 1]
+    return point, draws[int(0.025 * len(draws))], draws[int(0.975 * len(draws)) - 1], resamples - len(draws)

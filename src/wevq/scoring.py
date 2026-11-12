@@ -18,7 +18,10 @@ def answer_text(response: str) -> str:
 
 
 def last_boxed(text: str) -> str | None:
-    """Contents of the last `\\boxed{...}` (else the last `\\fbox{...}`), brace matched; None if absent or unclosed."""
+    """Contents of the last `\\boxed{...}` (else the last `\\fbox{...}`), brace matched; None if absent or unclosed.
+
+    As in the MIT grader, a last box cut off by the token limit gives None even if an earlier box is complete.
+    """
     start = text.rfind("\\boxed")
     if start == -1:
         start = text.rfind("\\fbox")
