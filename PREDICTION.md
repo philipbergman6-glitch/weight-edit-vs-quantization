@@ -1,14 +1,18 @@
 # Prediction (write before any test run, then never edit)
 
-Date and time written:
+Date and time written: 2026-11-12 18:17 IST
+
+Dictated by Philip, typed by Claude from his words.
 
 ## What I expect
 
-At 8-bit, the fix will: 
+At 8-bit, the fix will: survive. The edited model will keep at least half, if not three-quarters, of the reduction in looping it has at 16-bit. It will solve somewhat fewer maths questions than at 16-bit. Confidence: quite confident.
 
-At 4-bit, the fix will: 
+At 4-bit, the fix will: not survive. The edited model will not keep at least half of the reduction in looping, and it will solve many fewer maths questions than at 16-bit. Confidence: medium.
 
-Why I think so (one or two sentences):
+Why I think so (one or two sentences): When we quantize from 16-bit to 8-bit or 4-bit, the number of values a weight can take gets lower and lower: 16 values at 4-bit, 256 at 8-bit, and 65,000 plus at 16-bit. When the edited weights are rounded, many of them will be undone, so the edit goes back to what it was before and the fix stops working. In my opinion rounding erases the edit itself; it does not disturb the whole model.
+
+What I knew when I wrote this: I knew TurinTech's calibrated 4-bit result (46.95% vs 45.20%, same share at the token limit) when I wrote this; I expect a stock 4-bit file to do worse.
 
 ## Pass bars
 
