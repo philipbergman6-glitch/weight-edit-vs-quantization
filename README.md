@@ -35,7 +35,7 @@ Re-checked against primary sources on 2026-11-12; quotes and links are in `resea
 - Other editor models have been used (including Claude models).
 - Known criticisms, with numbers: the base model with "thinking" off scores 45.8% against 50.2% for the edited model with thinking on (JonathanColetti, 500 x 4; the thinking-off run used its own settings and an 8k token limit); the same edit scored 55% or 25% on the same 40 questions depending on llama.cpp sampler settings (NeoCortex, on an 8-bit file); a plain steering vector along the same direction reaches 50.8% (nathanrs), which is why some call it ordinary steering.
 
-**Still open, and what this repo adds:** the base model and the edited model side by side at full precision, 8-bit and a stock (uncalibrated) 4-bit file, on a single setup with the same settings everywhere, so the reduction in looping is measured at each precision level. At least 200 questions, with the setting-only baselines included. I found no published run of the base model at each precision, no 8-bit comparison and no stock 4-bit test above 40 questions.
+**Still open, and what this repo adds:** the base model and the edited model side by side at full precision, 8-bit and a stock (uncalibrated) 4-bit file, on a single setup with the same settings everywhere, so the reduction in looping is measured at each precision level. 100 questions at the authors' 32,768-token limit, extended to 200 if time allows, with the setting-only baselines included. I found no published run of the base model at each precision, no 8-bit comparison and no stock 4-bit test above 40 questions.
 
 ## Plan
 

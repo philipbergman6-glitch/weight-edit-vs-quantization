@@ -33,6 +33,7 @@ A locked experiment spec: every setting needed to run the six versions and two b
 - [Prediction prep: what should Philip expect, and why?](issues/05-prediction-prep.md): rounding, the two failure types and the evidence both ways covered; Philip formed his own view.
 - [Philip writes and commits the prediction](issues/06-philip-writes-prediction.md): committed; survives at 8-bit, does not survive at stock 4-bit; dictated by Philip and typed by the agent. Models may now generate text.
 - [Speed test, with file size and memory per version](issues/07-speed-and-size-test.md): six GGUF versions built; 65 to 123 tokens/s single stream, 237 to 294 with eight streams; worst-case full run is 56 h at a 32,768 limit, 14 h at 8,192.
+- [Lock the protocol: settings, baselines, scoring, minimum run](issues/08-lock-the-protocol.md): MIT's settings and 32,768 limit; 200 stratified questions in two halves of 100, half A first; looping = share hitting the token limit; baselines are thinking off and repeat penalty 1.1; six versions on half A are the guaranteed minimum.
 
 ## Not yet specified
 

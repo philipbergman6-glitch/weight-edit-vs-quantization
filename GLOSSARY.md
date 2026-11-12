@@ -29,8 +29,11 @@ Storing every weight of a model with fewer bits, which rounds each weight slight
 _Avoid_: shrinking, distilling, smaller model
 
 **Looping**:
-A response that reaches the token limit without giving a final answer. Measured as a rate over the question set.
+A response that reaches the token limit. Measured as a rate over the question set, the same way the MIT authors report "hit token limit".
 _Avoid_: repetition (a response can hit the limit without literally repeating)
+
+**Looping without an answer**:
+A response that reaches the token limit and contains no final boxed answer. The stricter measure, recorded beside looping.
 
 **Reduction in looping**:
 At one precision level, the base model's looping rate minus the edited model's looping rate.
