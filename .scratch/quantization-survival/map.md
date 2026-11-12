@@ -30,6 +30,8 @@ A locked experiment spec: every setting needed to run the six versions and two b
 - [Where MATH-500 comes from and how answers are graded](issues/03-math-500-source-and-grading.md): `HuggingFaceH4/MATH-500`, last boxed answer checked with math-verify 0.9.0, 200 stratified questions, Wilson intervals and McNemar test.
 - [Download both models, record hashes, diff the weights, confirm the edit](issues/04-download-hash-diff.md): both models on disk and hash-verified; stored precision is BF16; the edit is exactly two tensors (layers 15 and 19 `down_proj`, 64 columns each), narrow but large where it lands.
 - [Restate what this repo adds](issues/09-restate-what-this-repo-adds.md): base and edited side by side at full, 8-bit and stock 4-bit on one setup; continue; README corrected with Philip's approval; the prediction states the known 4-bit result.
+- [Prediction prep: what should Philip expect, and why?](issues/05-prediction-prep.md): rounding, the two failure types and the evidence both ways covered; Philip formed his own view.
+- [Philip writes and commits the prediction](issues/06-philip-writes-prediction.md): committed; survives at 8-bit, does not survive at stock 4-bit; dictated by Philip and typed by the agent. Models may now generate text.
 
 ## Not yet specified
 
