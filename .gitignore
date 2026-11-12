@@ -1,0 +1,11 @@
+# model weights and compressed builds: large, downloaded, never committed
+models/
+*.safetensors
+*.gguf
+# third-party PDFs: for local reading only, not ours to redistribute
+reading/
+# raw per-question outputs are large; the summary tables in results/ are committed
+results/raw/
+.venv/
+__pycache__/
+.DS_Store
