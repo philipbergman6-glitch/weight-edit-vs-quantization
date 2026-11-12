@@ -28,6 +28,7 @@ A locked experiment spec: every setting needed to run the six versions and two b
 - [Which tool runs this model at full, 8-bit and 4-bit on this laptop?](issues/01-quantization-toolchain.md): llama.cpp v0.9.0 GGUF for all six versions (BF16, Q8_0, Q4_K_M), sampler order and penalty window set explicitly; commands untested.
 - [Re-check the prior-work claims and MIT's exact test procedure](issues/02-prior-work-and-mit-procedure.md): the "still open" claim is out of date (a 500-question BF16 vs 4-bit test of the edited model exists); six README corrections; MIT's full procedure recovered.
 - [Where MATH-500 comes from and how answers are graded](issues/03-math-500-source-and-grading.md): `HuggingFaceH4/MATH-500`, last boxed answer checked with math-verify 0.9.0, 200 stratified questions, Wilson intervals and McNemar test.
+- [Download both models, record hashes, diff the weights, confirm the edit](issues/04-download-hash-diff.md): both models on disk and hash-verified; stored precision is BF16; the edit is exactly two tensors (layers 15 and 19 `down_proj`, 64 columns each), narrow but large where it lands.
 
 ## Not yet specified
 
