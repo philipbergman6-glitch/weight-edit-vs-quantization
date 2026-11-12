@@ -1,0 +1,32 @@
+[
+  {
+    "file": "models/gguf/base-Q8_0.gguf",
+    "file_size_mb": 811.8,
+    "parallel_slots": 8,
+    "context_per_slot": 34816,
+    "tokens_generated": 32768,
+    "wall_seconds": 113.4,
+    "tokens_per_second_total": 288.9,
+    "tokens_per_second_per_stream": 36.1,
+    "memory_idle_mb": 3604,
+    "memory_after_mb": 3802,
+    "server_command": "llama-server -m models/gguf/base-Q8_0.gguf --offline --host 127.0.0.1 --port 8097 -ngl all -c 278528 -np 8 --no-context-shift",
+    "sampling": {
+      "temperature": 0.6,
+      "top_k": 20,
+      "top_p": 0.95,
+      "min_p": 0.0,
+      "presence_penalty": 1.5,
+      "frequency_penalty": 0.0,
+      "repeat_penalty": 1.0,
+      "repeat_last_n": 34816,
+      "samplers": [
+        "penalties",
+        "temperature",
+        "top_k",
+        "top_p"
+      ],
+      "seed": 0
+    }
+  }
+]

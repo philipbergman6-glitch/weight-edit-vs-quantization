@@ -11,3 +11,6 @@ __pycache__/
 .DS_Store
 # agent worktrees
 .claude/
+# third-party source used for conversion
+vendor/
+.venv-convert/

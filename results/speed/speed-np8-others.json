@@ -1,0 +1,62 @@
+[
+  {
+    "file": "models/gguf/base-BF16.gguf",
+    "file_size_mb": 1516.7,
+    "parallel_slots": 8,
+    "context_per_slot": 34816,
+    "tokens_generated": 32768,
+    "wall_seconds": 138.4,
+    "tokens_per_second_total": 236.8,
+    "tokens_per_second_per_stream": 29.7,
+    "memory_idle_mb": 3605,
+    "memory_after_mb": 3800,
+    "server_command": "llama-server -m models/gguf/base-BF16.gguf --offline --host 127.0.0.1 --port 8097 -ngl all -c 278528 -np 8 --no-context-shift",
+    "sampling": {
+      "temperature": 0.6,
+      "top_k": 20,
+      "top_p": 0.95,
+      "min_p": 0.0,
+      "presence_penalty": 1.5,
+      "frequency_penalty": 0.0,
+      "repeat_penalty": 1.0,
+      "repeat_last_n": 34816,
+      "samplers": [
+        "penalties",
+        "temperature",
+        "top_k",
+        "top_p"
+      ],
+      "seed": 0
+    }
+  },
+  {
+    "file": "models/gguf/base-Q4_K_M.gguf",
+    "file_size_mb": 529.3,
+    "parallel_slots": 8,
+    "context_per_slot": 34816,
+    "tokens_generated": 32768,
+    "wall_seconds": 111.4,
+    "tokens_per_second_total": 294.2,
+    "tokens_per_second_per_stream": 36.9,
+    "memory_idle_mb": 3605,
+    "memory_after_mb": 3800,
+    "server_command": "llama-server -m models/gguf/base-Q4_K_M.gguf --offline --host 127.0.0.1 --port 8097 -ngl all -c 278528 -np 8 --no-context-shift",
+    "sampling": {
+      "temperature": 0.6,
+      "top_k": 20,
+      "top_p": 0.95,
+      "min_p": 0.0,
+      "presence_penalty": 1.5,
+      "frequency_penalty": 0.0,
+      "repeat_penalty": 1.0,
+      "repeat_last_n": 34816,
+      "samplers": [
+        "penalties",
+        "temperature",
+        "top_k",
+        "top_p"
+      ],
+      "seed": 0
+    }
+  }
+]
