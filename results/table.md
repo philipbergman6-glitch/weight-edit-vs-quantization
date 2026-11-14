@@ -12,8 +12,8 @@ Produced by `python -m wevq.table`; per-response flags are in `results/flags/`.
 | edited, 8-bit | 100 | 43.0% (34-53) | 39.0% (30-49) | 45.0% (36-55) | 22,636 |
 | base, 4-bit (Q4_K_M) | 100 | 84.0% (76-90) | 77.0% (68-84) | 16.0% (10-24) | 28,173 |
 | edited, 4-bit (Q4_K_M) | 100 | 29.0% (21-39) | 26.0% (18-35) | 42.0% (33-52) | 19,428 |
-| base, thinking off | not run | | | | |
-| base, repetition penalty | not run | | | | |
+| base, thinking off | 100 | 27.0% (19-36) | 19.0% (13-28) | 49.0% (39-59) | 11,730 |
+| base, repetition penalty 1.1 | 100 | 74.0% (65-82) | 67.0% (57-75) | 25.0% (18-34) | 26,360 |
 
 ## Reduction in looping, base vs edited at each precision level
 
@@ -33,3 +33,5 @@ Survives ratio = reduction at that level divided by the reduction at full precis
 - `edited-Q8_0`: `models/gguf/edited-Q8_0.gguf` (811,843,552 bytes), thinking on, max 32,768 new tokens, 8 streams, llama.cpp build `b12110-cd959bae9`, sampling `{"temperature": 0.6, "top_k": 20, "top_p": 0.95, "min_p": 0.0, "presence_penalty": 1.5, "frequency_penalty": 0.0, "repeat_penalty": 1.0, "repeat_last_n": 34816, "samplers": ["penalties", "temperature", "top_k", "top_p"], "seed": 0}`
 - `base-Q4_K_M`: `models/gguf/base-Q4_K_M.gguf` (529,297,440 bytes), thinking on, max 32,768 new tokens, 8 streams, llama.cpp build `b12110-cd959bae9`, sampling `{"temperature": 0.6, "top_k": 20, "top_p": 0.95, "min_p": 0.0, "presence_penalty": 1.5, "frequency_penalty": 0.0, "repeat_penalty": 1.0, "repeat_last_n": 34816, "samplers": ["penalties", "temperature", "top_k", "top_p"], "seed": 0}`
 - `edited-Q4_K_M`: `models/gguf/edited-Q4_K_M.gguf` (529,297,376 bytes), thinking on, max 32,768 new tokens, 8 streams, llama.cpp build `b12110-cd959bae9`, sampling `{"temperature": 0.6, "top_k": 20, "top_p": 0.95, "min_p": 0.0, "presence_penalty": 1.5, "frequency_penalty": 0.0, "repeat_penalty": 1.0, "repeat_last_n": 34816, "samplers": ["penalties", "temperature", "top_k", "top_p"], "seed": 0}`
+- `baseline-thinking-off`: `models/gguf/base-BF16.gguf` (1,516,744,736 bytes), thinking off, max 32,768 new tokens, 8 streams, llama.cpp build `b12110-cd959bae9`, sampling `{"temperature": 0.6, "top_k": 20, "top_p": 0.95, "min_p": 0.0, "presence_penalty": 1.5, "frequency_penalty": 0.0, "repeat_penalty": 1.0, "repeat_last_n": 34816, "samplers": ["penalties", "temperature", "top_k", "top_p"], "seed": 0}`
+- `baseline-repeat-penalty`: `models/gguf/base-BF16.gguf` (1,516,744,736 bytes), thinking on, max 32,768 new tokens, 8 streams, llama.cpp build `b12110-cd959bae9`, sampling `{"temperature": 0.6, "top_k": 20, "top_p": 0.95, "min_p": 0.0, "presence_penalty": 1.5, "frequency_penalty": 0.0, "repeat_penalty": 1.1, "repeat_last_n": 34816, "samplers": ["penalties", "temperature", "top_k", "top_p"], "seed": 0}`

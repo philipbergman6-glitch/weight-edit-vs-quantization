@@ -1,0 +1,100 @@
+{"unique_id": "test/algebra/24.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "2000", "gold": "2000", "tokens_generated": 363}
+{"unique_id": "test/algebra/849.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "18", "gold": "18", "tokens_generated": 326}
+{"unique_id": "test/algebra/478.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "65", "gold": "65", "tokens_generated": 309}
+{"unique_id": "test/algebra/2592.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "26000", "gold": "26000", "tokens_generated": 503}
+{"unique_id": "test/algebra/1842.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "49", "gold": "49", "tokens_generated": 428}
+{"unique_id": "test/algebra/2476.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "650", "gold": "10", "tokens_generated": 1356}
+{"unique_id": "test/algebra/2735.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "\\frac{11+9a}{20}", "gold": "\\frac{11+9a}{20}", "tokens_generated": 590}
+{"unique_id": "test/algebra/864.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "(-1,6)", "gold": "(-1,6)", "tokens_generated": 323}
+{"unique_id": "test/algebra/2102.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "56", "gold": "56", "tokens_generated": 19334}
+{"unique_id": "test/algebra/661.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "4", "gold": "36", "tokens_generated": 774}
+{"unique_id": "test/algebra/2159.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "0", "gold": "11", "tokens_generated": 915}
+{"unique_id": "test/algebra/1275.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "\\frac{\\sqrt[3]{3}}{3}", "gold": "\\frac{\\sqrt{3}}{3}", "tokens_generated": 593}
+{"unique_id": "test/algebra/769.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "11", "gold": "11", "tokens_generated": 2518}
+{"unique_id": "test/algebra/1184.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "129", "gold": "129", "tokens_generated": 4049}
+{"unique_id": "test/algebra/791.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "41", "gold": "41", "tokens_generated": 1559}
+{"unique_id": "test/algebra/101.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "[-2, 7]", "gold": "x \\in [-2,7]", "tokens_generated": 394}
+{"unique_id": "test/algebra/2570.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "2107", "gold": "2107", "tokens_generated": 923}
+{"unique_id": "test/algebra/1343.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "256", "gold": "256", "tokens_generated": 598}
+{"unique_id": "test/algebra/2232.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "-3", "gold": "-3", "tokens_generated": 393}
+{"unique_id": "test/algebra/1078.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "\\left( -\\sqrt{\\sqrt{21} + 2}, \\ \\sqrt{\\sqrt{21} - 2} \\right)", "gold": "(-\\sqrt{3}, \\sqrt{3})", "tokens_generated": 846}
+{"unique_id": "test/algebra/2427.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "5", "gold": "10", "tokens_generated": 9292}
+{"unique_id": "test/algebra/291.json", "looping": true, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "1", "gold": "\\frac{2}{3}", "tokens_generated": 32768}
+{"unique_id": "test/algebra/2064.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "81", "gold": "81", "tokens_generated": 3117}
+{"unique_id": "test/algebra/776.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "-2", "tokens_generated": 32768}
+{"unique_id": "test/algebra/1837.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "0", "gold": "5", "tokens_generated": 13992}
+{"unique_id": "test/counting_and_probability/190.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "6", "gold": "6", "tokens_generated": 686}
+{"unique_id": "test/counting_and_probability/199.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "13", "tokens_generated": 32768}
+{"unique_id": "test/counting_and_probability/23957.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "210", "gold": "210", "tokens_generated": 699}
+{"unique_id": "test/counting_and_probability/119.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "-125", "gold": "-125", "tokens_generated": 1035}
+{"unique_id": "test/counting_and_probability/1114.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "\\frac{7}{36}", "gold": "\\frac{11}{36}", "tokens_generated": 875}
+{"unique_id": "test/counting_and_probability/1009.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "28", "tokens_generated": 32768}
+{"unique_id": "test/counting_and_probability/870.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "\\frac{2}{3}", "gold": "\\frac{1}{3}", "tokens_generated": 1372}
+{"unique_id": "test/counting_and_probability/525.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "120", "gold": "144", "tokens_generated": 9118}
+{"unique_id": "test/geometry/846.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "100^\\circ", "gold": "90^\\circ", "tokens_generated": 21343}
+{"unique_id": "test/geometry/106.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "31", "gold": "31", "tokens_generated": 2461}
+{"unique_id": "test/geometry/795.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "2/5", "gold": "\\frac{\\sqrt{21}}{5}", "tokens_generated": 18356}
+{"unique_id": "test/geometry/353.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "\\sqrt{5}", "gold": "\\sqrt{5}", "tokens_generated": 794}
+{"unique_id": "test/geometry/283.json", "looping": true, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "8", "gold": "8", "tokens_generated": 32768}
+{"unique_id": "test/geometry/172.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "8", "tokens_generated": 32768}
+{"unique_id": "test/geometry/183.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "10", "gold": "145^\\circ", "tokens_generated": 17858}
+{"unique_id": "test/geometry/880.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "2\\sqrt{34}", "gold": "2\\sqrt{113}", "tokens_generated": 17858}
+{"unique_id": "test/intermediate_algebra/431.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "(a + 5)(b + 2)", "gold": "(a+5)(b+2)", "tokens_generated": 374}
+{"unique_id": "test/intermediate_algebra/991.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "3", "gold": "3", "tokens_generated": 3463}
+{"unique_id": "test/intermediate_algebra/623.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "0", "gold": "0", "tokens_generated": 553}
+{"unique_id": "test/intermediate_algebra/1217.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "x^5 - x^4 + x^3 - x - 2", "gold": "x^5 - x^4 + x^3 - x^2 + x - 1", "tokens_generated": 2110}
+{"unique_id": "test/intermediate_algebra/834.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "9", "gold": "9", "tokens_generated": 905}
+{"unique_id": "test/intermediate_algebra/1000.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "3", "gold": "3", "tokens_generated": 1610}
+{"unique_id": "test/intermediate_algebra/1232.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "\\frac{65}{169}", "gold": "\\frac{5}{13}", "tokens_generated": 1886}
+{"unique_id": "test/intermediate_algebra/607.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "13535", "tokens_generated": 32768}
+{"unique_id": "test/intermediate_algebra/1981.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "(-\\infty, 2)", "gold": "(2,12) \\cup (12,102)", "tokens_generated": 911}
+{"unique_id": "test/intermediate_algebra/207.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "-1", "tokens_generated": 32768}
+{"unique_id": "test/intermediate_algebra/345.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "16", "gold": "504", "tokens_generated": 19443}
+{"unique_id": "test/intermediate_algebra/362.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "6(\\sqrt{17} + \\sqrt{13}) - 8", "gold": "40", "tokens_generated": 7897}
+{"unique_id": "test/intermediate_algebra/960.json", "looping": true, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "\\infty", "gold": "\\frac{17}{21}", "tokens_generated": 32768}
+{"unique_id": "test/intermediate_algebra/1408.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "-2", "tokens_generated": 32768}
+{"unique_id": "test/intermediate_algebra/1994.json", "looping": true, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "p-q", "gold": "p - q", "tokens_generated": 32768}
+{"unique_id": "test/intermediate_algebra/1544.json", "looping": true, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "0", "gold": "6", "tokens_generated": 32768}
+{"unique_id": "test/intermediate_algebra/1454.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "70 \\sqrt{2}", "tokens_generated": 32768}
+{"unique_id": "test/intermediate_algebra/1806.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "3", "gold": "\\frac{13}{4}", "tokens_generated": 13368}
+{"unique_id": "test/intermediate_algebra/558.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "", "gold": "(3,4]", "tokens_generated": 20527}
+{"unique_id": "test/number_theory/132.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "0", "gold": "0", "tokens_generated": 485}
+{"unique_id": "test/number_theory/686.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "4", "gold": "4", "tokens_generated": 2904}
+{"unique_id": "test/number_theory/234.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "9", "gold": "16", "tokens_generated": 12643}
+{"unique_id": "test/number_theory/459.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "\\frac{639}{40}", "gold": "\\frac{639}{40}", "tokens_generated": 972}
+{"unique_id": "test/number_theory/203.json", "looping": true, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "15", "gold": "14", "tokens_generated": 32768}
+{"unique_id": "test/number_theory/22.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "6", "gold": "2", "tokens_generated": 789}
+{"unique_id": "test/number_theory/516.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "2516_8", "tokens_generated": 32768}
+{"unique_id": "test/number_theory/488.json", "looping": true, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "38", "gold": "58", "tokens_generated": 32768}
+{"unique_id": "test/number_theory/72.json", "looping": true, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "", "gold": "121", "tokens_generated": 32768}
+{"unique_id": "test/number_theory/483.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "3", "gold": "3", "tokens_generated": 1010}
+{"unique_id": "test/number_theory/1128.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "2", "tokens_generated": 32768}
+{"unique_id": "test/number_theory/1055.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "203", "tokens_generated": 32768}
+{"unique_id": "test/number_theory/1002.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "1440", "tokens_generated": 32768}
+{"unique_id": "test/prealgebra/1317.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "4", "gold": "4", "tokens_generated": 370}
+{"unique_id": "test/prealgebra/505.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "6", "gold": "6", "tokens_generated": 397}
+{"unique_id": "test/prealgebra/2019.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "4.5", "gold": "4.5", "tokens_generated": 326}
+{"unique_id": "test/prealgebra/1298.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "15x - 80", "gold": "15x - 80", "tokens_generated": 251}
+{"unique_id": "test/prealgebra/977.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "23", "gold": "23", "tokens_generated": 534}
+{"unique_id": "test/prealgebra/1787.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "1", "gold": "1", "tokens_generated": 583}
+{"unique_id": "test/prealgebra/1761.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "\\frac{3}{2}", "gold": "\\frac{3}{2}", "tokens_generated": 274}
+{"unique_id": "test/prealgebra/631.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "2", "tokens_generated": 32768}
+{"unique_id": "test/prealgebra/1995.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "\\frac{8}{21}", "gold": "\\frac{8}{21}", "tokens_generated": 2881}
+{"unique_id": "test/prealgebra/1302.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "11\\sqrt{2}", "gold": "11\\sqrt2", "tokens_generated": 586}
+{"unique_id": "test/prealgebra/2037.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "550", "gold": "550", "tokens_generated": 428}
+{"unique_id": "test/prealgebra/378.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "12", "gold": "10", "tokens_generated": 3761}
+{"unique_id": "test/prealgebra/1388.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "83", "gold": "83", "tokens_generated": 427}
+{"unique_id": "test/prealgebra/1655.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "\\frac{51}{100}", "gold": "\\dfrac{17}{50}", "tokens_generated": 1149}
+{"unique_id": "test/prealgebra/1930.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "1", "gold": "7", "tokens_generated": 18846}
+{"unique_id": "test/prealgebra/954.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "10", "gold": "10", "tokens_generated": 601}
+{"unique_id": "test/precalculus/1289.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "-41", "gold": "-41", "tokens_generated": 280}
+{"unique_id": "test/precalculus/697.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "-\\sqrt{3}", "tokens_generated": 32768}
+{"unique_id": "test/precalculus/1105.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "-\\frac{\\pi}{6}", "gold": "-\\frac{\\pi}{6}", "tokens_generated": 588}
+{"unique_id": "test/precalculus/681.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "\\frac{1}{8}", "gold": "\\frac{1}{8}", "tokens_generated": 6511}
+{"unique_id": "test/precalculus/1201.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "11", "tokens_generated": 32768}
+{"unique_id": "test/precalculus/819.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": false, "predicted": "E", "gold": "\\text{(C)}", "tokens_generated": 659}
+{"unique_id": "test/precalculus/499.json", "looping": false, "has_answer": true, "looping_without_answer": false, "correct": true, "predicted": "[\\frac{\\pi^2}{8}, \\frac{5\\pi^2}{4}]", "gold": "\\left[ \\frac{\\pi^2}{8}, \\frac{5 \\pi^2}{4} \\right]", "tokens_generated": 1014}
+{"unique_id": "test/precalculus/989.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "12", "tokens_generated": 32768}
+{"unique_id": "test/precalculus/1199.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "\\pi", "tokens_generated": 32768}
+{"unique_id": "test/precalculus/1133.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "3R^2", "tokens_generated": 32768}
+{"unique_id": "test/precalculus/990.json", "looping": true, "has_answer": false, "looping_without_answer": true, "correct": false, "predicted": null, "gold": "6 - 5i", "tokens_generated": 32768}
