@@ -1,6 +1,6 @@
 # Does a direct weight edit survive quantization?
 
-**Status: both models downloaded and the edit confirmed by a weight diff; no model has been run yet (2026-11-12).**
+**Status: run complete (2026-11-14). The reduction in looping survives 8-bit and 4-bit; accuracy drops. See [`RESULT.md`](RESULT.md). Demo and spoken version still to do.**
 
 ## Credit first
 
