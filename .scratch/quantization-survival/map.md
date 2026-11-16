@@ -9,7 +9,7 @@ A locked experiment spec: every setting needed to run the six versions and two b
 ## Notes
 
 - Domain: measuring an ML model on a laptop (Apple M5, 16 GB). Read `README.md`, `CLAUDE.md` and `GLOSSARY.md` first; use the glossary's terms.
-- Purpose: a two-minute supporting talking point for Philip's interview on Tue 2026-11-17 (Skapion). Results table due end of Sat 2026-11-14.
+- Purpose: one question, one table, one demo. Results table due end of Sat 2026-11-14.
 - Scope is the core only: six versions plus two baselines. "One question, one table, one demo."
 - Philip is learning quantization through this. Explain every decision in plain words.
 - `PREDICTION.md` is written by Philip, in his words, and committed before any model generates any text. Never write or edit it for him.
