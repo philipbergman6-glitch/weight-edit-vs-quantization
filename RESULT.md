@@ -72,7 +72,9 @@ The prediction was committed before the first run ([`PREDICTION.md`](PREDICTION.
   At 8-bit it still scores 49% (14 questions lost, 14 gained, p = 1), while the edited model lost 16 and gained none.
   So at 8-bit, quantization costs the edited model accuracy and not this working model. The two rows differ in more than the edit:
   the edited model also thinks, and its answers are far longer, so long reasoning being more fragile under rounding is a live
-  alternative. The 4-bit control has not been run.
+  alternative. At 4-bit the control also drops, from 49% to 41% (lost 15, gained 7, p = 0.13), while the edited model drops
+  from 61% to 42% (lost 21, gained 2). So at 4-bit compression costs both models some accuracy; the edited model's drop looks larger,
+  but with 100 questions this run cannot show that the two drops differ.
 
 ## What was already published and what this adds
 
