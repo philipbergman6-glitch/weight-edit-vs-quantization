@@ -1,6 +1,6 @@
 # Does a direct weight edit survive quantization?
 
-**Status: run complete (2026-11-14). The reduction in looping survives 8-bit and 4-bit; accuracy drops. See [`RESULT.md`](RESULT.md). Demo and spoken version still to do.**
+**Status: run complete (2026-11-14). The reduction in looping survives 8-bit and 4-bit; accuracy drops. See [`RESULT.md`](RESULT.md). Demo: `src/demo.sh`.**
 
 ## Credit first
 
@@ -49,7 +49,7 @@ Re-checked against primary sources on 2026-11-12; quotes and links are in `resea
 | 6 | Run the same questions on every version, offline, identical settings | `results/table.md` |
 | 7 | One-page write-up: table, prediction vs outcome, limits | `RESULT.md` |
 
-Optional, only if time: sweep the edit strength; measure the edit size against the rounding step.
+Optional, only if time: sweep the edit strength; measure the edit size against the rounding step (done after the run: `results/edit-rounding.md`).
 
 ## Rules for this repo
 
@@ -60,4 +60,4 @@ Optional, only if time: sweep the edit strength; measure the edit size against t
 
 ## Demo
 
-Wi-Fi off. One maths question to two models side by side: the base model loops, the edited one answers. Then the 4-bit edited version on the same question.
+Wi-Fi off. One maths question to two models side by side: the base model loops, the edited one answers. Then the 4-bit edited version on the same question. Run `src/demo.sh base-BF16` and `src/demo.sh edited-BF16` in two terminals (same settings as the run).

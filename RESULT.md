@@ -53,7 +53,7 @@ The prediction was committed before the first run ([`PREDICTION.md`](PREDICTION.
 | 8-bit answers somewhat fewer questions | Right in direction; the drop was larger: 61% to 45% |
 | 4-bit does not survive | Wrong: kept 0.96 |
 | 4-bit answers many fewer questions | Right: 61% to 42% |
-| Reason: rounding erases the edit itself, not the whole model | Not supported: the edit's effect on looping stayed; correct answers are what dropped |
+| Reason: rounding erases the edit itself, not the whole model | Not supported: the edit's effect on looping stayed; correct answers are what dropped. Read back from the files, the 8-bit edit is intact (direction cosine 0.9998) and the 4-bit edit is bent but mostly there (0.93 and 0.90) ([`results/edit-rounding.md`](results/edit-rounding.md), post-hoc) |
 
 ## Limits
 
@@ -65,7 +65,10 @@ The prediction was committed before the first run ([`PREDICTION.md`](PREDICTION.
 - **One 4-bit recipe, one tool.** Stock llama.cpp Q4_K_M, which averages 5.51 bits per weight. Other recipes and tools were not tested.
 - **One model, one edit, one benchmark.**
 - **Extra checks** were chosen after seeing the table. They are labelled as such and should be read as leads.
-- **Why accuracy drops is not measured here.** This run shows that it drops, not the mechanism.
+- **Why accuracy drops is not measured here.** This run shows that it drops, not the mechanism. One cause is ruled out at 8-bit:
+  the edit survives rounding there almost exactly (`results/edit-rounding.md`), so the 8-bit drop must come from somewhere else
+  (rounding of the rest of the model, or chance). The base model scores too low (14-16%) to show an accuracy drop of its own,
+  so this run cannot tell whether quantization hurts the edited model more than any working model.
 
 ## What was already published and what this adds
 
