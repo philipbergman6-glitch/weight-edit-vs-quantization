@@ -16,3 +16,5 @@ vendor/
 .venv-convert/
 # third-party questions: no licence declared, not redistributed (id lists are committed)
 data/math500_test.jsonl
+# local planning notes, not published
+.scratch/
