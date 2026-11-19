@@ -68,7 +68,11 @@ The prediction was committed before the first run ([`PREDICTION.md`](PREDICTION.
 - **Why accuracy drops is not measured here.** This run shows that it drops, not the mechanism. One cause is ruled out at 8-bit:
   the edit survives rounding there almost exactly (`results/edit-rounding.md`), so the 8-bit drop must come from somewhere else
   (rounding of the rest of the model, or chance). The base model scores too low (14-16%) to show an accuracy drop of its own,
-  so this run cannot tell whether quantization hurts the edited model more than any working model.
+  so a control was added after the run (`results/controls.md`, post-hoc): the base model with thinking off, which scores 49%.
+  At 8-bit it still scores 49% (14 questions lost, 14 gained, p = 1), while the edited model lost 16 and gained none.
+  So at 8-bit, quantization costs the edited model accuracy and not this working model. The two rows differ in more than the edit:
+  the edited model also thinks, and its answers are far longer, so long reasoning being more fragile under rounding is a live
+  alternative. The 4-bit control has not been run.
 
 ## What was already published and what this adds
 
