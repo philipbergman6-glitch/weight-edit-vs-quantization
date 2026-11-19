@@ -26,7 +26,7 @@ My contribution is the measurement, not the edit.
 
 ## What others already did (so nothing here is over-claimed)
 
-Re-checked against primary sources on 2026-11-12; quotes and links are in `research/prior-work-and-mit-procedure.md` on the branch `research/prior-work-and-mit-procedure`. Third-party numbers below are read from their own pages, not re-run by me.
+Re-checked against primary sources on 2026-11-12; quotes and links are in [`research/prior-work-and-mit-procedure.md`](research/prior-work-and-mit-procedure.md). Third-party numbers below are read from their own pages, not re-run by me.
 
 - Replicating and re-applying the edit: done many times, byte-for-byte.
 - **4-bit, 500 questions (TurinTech, 4 Nov 2026):** the edited model at full precision vs their 4-bit file, 500 MATH-500 questions x 4 samples, same llama.cpp setup: 46.95% vs 45.20% accuracy, with 40.55% of answers reaching the token limit in both. Their 4-bit file is calibrated (tuned per tensor), and the base model was not run on MATH-500.
