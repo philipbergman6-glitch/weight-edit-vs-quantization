@@ -1,7 +1,9 @@
 # Result: the edit survives quantization, but accuracy drops
 
-Run finished Sat 2026-11-14, 03:50 IST. Every number below comes from [`results/table.md`](results/table.md),
-[`results/extra-checks.md`](results/extra-checks.md) or [`results/speed.md`](results/speed.md).
+Run finished Sat 2026-11-14, 03:50 IST. Every number measured here comes from [`results/table.md`](results/table.md),
+[`results/extra-checks.md`](results/extra-checks.md), [`results/speed.md`](results/speed.md),
+[`results/controls.md`](results/controls.md) or [`results/edit-rounding.md`](results/edit-rounding.md).
+Numbers from other people's work are named with their source.
 
 ## The question
 
@@ -63,6 +65,10 @@ The prediction was committed before the first run ([`PREDICTION.md`](PREDICTION.
 - **Accuracy is higher than MIT's** (61% against their 48.1% for the edited model; 14% against 7.9% for the base model). The cause is not established;
   candidates are the smaller sample and llama.cpp against their vLLM setup. The full-precision rows are a sanity check, not a replication.
 - **One 4-bit recipe, one tool.** Stock llama.cpp Q4_K_M, which averages 5.51 bits per weight. Other recipes and tools were not tested.
+- **One sampler.** Every row used the published sampler (temperature 0.6, presence penalty 1.5; `results/table.md`, Settings),
+  so "survives quantization" holds under that sampler only. One evaluator, the author of a competing edit, reports that with greedy
+  decoding and no presence penalty the edit scores 5% with 95% of answers at the 32K limit, against 52% and 28% with the published
+  sampler (Nondual-Observer, discussion #5 on the edited model's Hugging Face page). Single source; not re-run here.
 - **One model, one edit, one benchmark.**
 - **Extra checks** were chosen after seeing the table. They are labelled as such and should be read as leads.
 - **Why accuracy drops is not measured here.** This run shows that it drops, not the mechanism. One cause is ruled out at 8-bit:
