@@ -2,6 +2,10 @@
 
 **Status: run complete (2026-11-14). The reduction in looping survives 8-bit and 4-bit; accuracy drops. Two checks were added after the run (post-hoc): what rounding does to the edit ([`results/edit-rounding.md`](results/edit-rounding.md)) and the base model with thinking off at each precision level ([`results/controls.md`](results/controls.md)). See [`RESULT.md`](RESULT.md). Demo: `src/demo.sh`. README last checked 2026-11-22.**
 
+![Looping and correct answers for the original and the edited model at 16-bit, 8-bit and 4-bit](results/chart.png)
+
+Chart drawn by `src/chart.py` from `results/flags/`.
+
 ## Credit first
 
 The idea and the edit tested here are not mine.
