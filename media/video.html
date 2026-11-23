@@ -24,6 +24,7 @@
   .t.big h2 { font-size: 38px; line-height: 1.05; letter-spacing: -0.03em; }
   .t p { margin: 12px 0 0; font-size: 21px; line-height: 1.3; color: #D6DCD4; text-wrap: balance; }
   .t b, .stat b { color: var(--acc); font-weight: 500; }
+  .t i { font-style: normal; color: #5ED0C0; font-weight: 500; }
   .stat { position: absolute; left: 24px; right: 24px; top: 566px; font-size: 24px; line-height: 1.3; opacity: 0; }
   .nw { white-space: nowrap; }
   .credit { position: absolute; left: 24px; right: 24px; bottom: 16px; font-size: 20px; line-height: 1.32; color: #D6DCD4; opacity: 0; }
@@ -34,27 +35,32 @@
 <canvas id="c"></canvas>
 
 <div class="t" data-in="0" data-out="5.2"><h2>A small AI found the answer. Then it couldn't stop.</h2><p>A real answer from Qwen3.5-0.8B, on one maths question.</p></div>
-<div class="t" data-in="5.2" data-out="10.2"><h2>MIT researchers had a bigger AI edit its weights directly.</h2><p>No retraining. Same question: now it answers and stops.</p></div>
-<div class="stat" data-in="7.6" data-out="10.2">Looping, 100 questions: <b class="nw"><span data-n="answers.base-BF16.looping">88</span>% → <span data-n="answers.edited-BF16.looping">31</span>%</b></div>
-<div class="t" data-in="10.2" data-out="12.6"><h2>One question, one square.</h2><p><b>Amber:</b> the edited model got it right.</p></div>
-<div class="t" data-in="12.6" data-out="15.8"><h2>Now all 100 questions. <span class="nw"><b data-n="answers.edited-BF16.correct">61</b> right.</span></h2><p>One square each. <b>Amber = right</b>, grey = wrong.</p></div>
-<div class="t" data-in="15.8" data-out="20"><h2>The edit itself is a few thin stripes.</h2><p><span data-n="edit.15.columns.length">64</span> columns, in 2 of its 24 layers. <span class="nw"><span data-n="authors_figure.share">0.016%</span> of all its numbers.</span></p></div>
-<div class="t" data-in="20" data-out="23.6"><h2>Now compress it to <span class="nw">8-bit</span>, then <span class="nw">4-bit</span>.</h2><p>Every number gets rounded.</p></div>
-<div class="t" data-in="23.6" data-out="27.6"><h2>The stripes survive. The right answers drain.</h2></div>
-<div class="t big" data-in="27.6" data-out="99"><h2>The fix survived compression. <b>The accuracy didn't.</b></h2></div>
-<div class="credit" data-in="28.8" data-out="99">The edit: Takehi, Teoh, Zhang, Khattab (MIT CSAIL).<span class="url">github.com/philipbergman6-glitch/<br>weight-edit-vs-quantization</span></div>
+<div class="t" data-in="5.2" data-out="10.2"><h2>MIT researchers had a bigger AI edit the small one's weights directly.</h2><p>No retraining. Same question: now it answers and stops on its own.</p></div>
+<div class="stat" data-in="6.6" data-out="10.2">Looping, 100 questions: <b class="nw"><span data-n="answers.base-BF16.looping">88</span>% → <span data-n="answers.edited-BF16.looping">31</span>%</b></div>
+<div class="t" data-in="10.2" data-out="12.6"><h2>Now score each answer: right or wrong.</h2><p>This one is right, so its square is <b>amber</b>.</p></div>
+<div class="t" data-in="12.6" data-out="15.9"><h2>All 100 questions: <b data-n="answers.edited-BF16.correct">61</b> right.</h2><p><b>Amber = right.</b> Dashed line: the original model, before the edit.</p></div>
+<div class="t" data-in="15.9" data-out="20"><h2>The edit itself: <span data-n="edit.15.columns.length">64</span> thin lines in one layer.</h2><p><i>Teal</i> = changed by the edit. 2 of 24 layers, <span class="nw"><span data-n="authors_figure.share">0.016%</span> of all its numbers.</span></p></div>
+<div class="t" data-in="20" data-out="24"><h2>Now compress it to <span class="nw">8-bit</span>, then <span class="nw">4-bit</span>.</h2><p>Every number gets rounded, to save memory.</p></div>
+<div class="t" data-in="24" data-out="28"><h2>The edit's lines survive. The right answers drain.</h2></div>
+<div class="t big" data-in="28" data-out="99"><h2>The fix survived compression. <b>The accuracy didn't.</b></h2></div>
+<div class="credit" data-in="29.8" data-out="99">The edit: Takehi, Teoh, Zhang, Khattab (MIT CSAIL).<span class="url">github.com/philipbergman6-glitch/<br>weight-edit-vs-quantization</span></div>
 
-<script src="../docs/assets/scope.js"></script>
+<script src="../docs/assets/data.js"></script>
 <script src="../docs/assets/shots.js"></script>
 <script>
 (function () {
   'use strict';
-  var WS = window.WeightScope, S = window.WeightShots, D, canvas = document.getElementById('c'), x;
-  var W = 540, H = 675, DPR = 2, DURATION = 33;
+  var WD = window.WeightData, S = window.WeightShots, D, canvas = document.getElementById('c'), x;
+  var W = 540, H = 675, DPR = 2, DURATION = 34;
   var sm = S.sm, lerp = S.lerp, C = S.C;
   var k = function (t, a, b) { return S.clamp01((t - a) / (b - a)); };
   var io = function (u) { u = S.clamp01(u); return u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; };
   var back = function (u) { u = S.clamp01(u); var c1 = 1.6, c3 = c1 + 1; return 1 + c3 * Math.pow(u - 1, 3) + c1 * Math.pow(u - 1, 2); };
+
+  // One thing moves at a time. Each rounding step: the knob turns, a scan rounds the edit,
+  // the verdict on the edit appears, and only then do the answers drain.
+  var STEP = [null, { knob: 20.5, scan: 20.9, status: 21.6, drain: 22.3 }, { knob: 24.2, scan: 24.6, status: 25.3, drain: 26.0 }];
+  var END = 28.0;
 
   // Captions: a short rise in, a short lift out.
   function caption(el, t) {
@@ -67,21 +73,22 @@
   function checkNumbers(m) {
     [].forEach.call(document.querySelectorAll('[data-n]'), function (el) {
       var v = el.dataset.n.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, m);
-      var want = typeof v === 'number' ? (el.dataset.round ? v.toFixed(+el.dataset.round) : (Number.isInteger(v) ? WS.fmt(v) : String(v))) : String(v);
+      var want = typeof v === 'number' ? (el.dataset.round ? v.toFixed(+el.dataset.round) : (Number.isInteger(v) ? WD.fmt(v) : String(v))) : String(v);
       if (el.textContent.trim() !== want) throw new Error('video text disagrees with manifest: ' + el.dataset.n + ' ' + el.textContent + ' vs ' + want);
     });
   }
 
   // ---- three layouts; the picture moves between them, never cuts
+  // g*: grid, n*: number column (lv0/lvs: per-precision list), lg*: legend, s*: stripes, st: status line
   var K = [
-    { gx: 24, gy: 206, gs: 330, nx: 378, ny: 330, big: 96, lgx: 380, lgy: 506, sy: 222, sh: 128, st: 380 },   // the grid alone
-    { gx: 24, gy: 398, gs: 238, nx: 288, ny: 466, big: 80, lgx: 288, lgy: 616, sy: 222, sh: 128, st: 380 },  // grid under the stripes
-    { gx: 24, gy: 382, gs: 178, nx: 228, ny: 440, big: 64, lgx: 228, lgy: 552, sy: 166, sh: 128, st: 322 }   // the closing frame
+    { gx: 24, gy: 206, gs: 330, nx: 378, ny: 330, big: 96, lv0: 62, lvs: 26, lgx: 380, lgy: 400, sy: 214, sh: 128, st: 370 },
+    { gx: 24, gy: 414, gs: 230, nx: 284, ny: 478, big: 76, lv0: 62, lvs: 26, lgx: 286, lgy: 540, sy: 214, sh: 128, st: 370 },
+    { gx: 24, gy: 392, gs: 168, nx: 220, ny: 432, big: 56, lv0: 56, lvs: 22, lgx: 222, lgy: 482, sy: 166, sh: 128, st: 322 }
   ];
   function layout(t) {
-    var a = io(k(t, 15.9, 17.0)), b = io(k(t, 27.6, 28.5)), o = {};
+    var a = io(k(t, 15.9, 17.0)), b = io(k(t, END, END + 0.9)), o = {};
     Object.keys(K[0]).forEach(function (n) { o[n] = lerp(lerp(K[0][n], K[1][n], a), K[2][n], b); });
-    o.two = a; o.end = b;
+    o.end = b;
     return o;
   }
   var TERM = { x: 24, y: 214, w: 492, h: 330 };
@@ -90,7 +97,8 @@
     x.setTransform(DPR, 0, 0, DPR, 0, 0);
     x.fillStyle = C.ground; x.fillRect(0, 0, W, H);
     var Lo = layout(t), GR = { x: Lo.gx, y: Lo.gy, w: Lo.gs, h: Lo.gs };
-    var seed = D.m.loop.index, G = S.drainLayout(D);
+    var seed = D.m.loop.index, G = S.drainLayout(D), A = D.m.answers;
+    var q = k(t, STEP[1].drain, STEP[1].drain + 1.4) + k(t, STEP[2].drain, STEP[2].drain + 1.4);
 
     // 1. the loop, then the edited answer, in one terminal
     if (t < 10.2) S.loop(x, TERM, D, 0.18 + 0.82 * k(t, 0.3, 4.4), sm(k(t, 5.4, 7.4)));
@@ -100,9 +108,9 @@
       var u = k(t, 10.2, 11.4), e = io(u), CR = S.cellRect(D, GR, seed, 0);
       var w = TERM.w * Math.pow(CR.w / TERM.w, e), h = TERM.h * Math.pow(CR.h / TERM.h, e);
       var cx = lerp(TERM.x + TERM.w / 2, CR.x + CR.w / 2, e), cy = lerp(TERM.y + TERM.h / 2, CR.y + CR.h / 2, e);
-      var R = { x: cx - w / 2, y: cy - h / 2, w: w, h: h }, rad = lerp(6, 0, e);
+      var R = { x: cx - w / 2, y: cy - h / 2, w: w, h: h };
       x.save();
-      S.rrect(x, R.x, R.y, R.w, R.h, rad); x.fillStyle = S.mixHex(C.panel, C.acc, sm((u - 0.4) / 0.45)); x.fill();
+      S.rrect(x, R.x, R.y, R.w, R.h, lerp(6, 0, e)); x.fillStyle = S.mixHex(C.panel, C.acc, sm((u - 0.4) / 0.45)); x.fill();
       x.lineWidth = 1.5; x.strokeStyle = 'rgba(245,184,65,' + (0.7 * (1 - sm(u / 0.6))).toFixed(3) + ')'; x.stroke();
       var ca = 1 - sm(u / 0.32);
       if (ca > 0) {
@@ -122,31 +130,47 @@
         var d = Math.hypot(c - s0.c, r - s0.r);
         return back(k(t, t0 + d * 0.085, t0 + d * 0.085 + 0.4));
       };
-      var q = k(t, 21.9, 23.3) + k(t, 25.3, 26.7);
+      var popAt = function (i) { var c = S.cellRect(D, GR, i, 0); return pop(i, c.c, c.r); };
       var markA = sm(k(t, 11.4, 11.7)) * (1 - sm(k(t, 14.6, 15.4)));
       S.drain(x, GR, D, q, { pop: pop, mark: seed, markA: markA });
 
-      // the count, live: during the build-up it counts the right answers that have appeared
-      // the number ticks over while the squares change colour, before they move
+      // the original model's score, as a water line on the same grid
+      var ol = sm(k(t, 13.9, 14.4));
+      if (ol > 0) {
+        var qq = Math.min(q, 2), b0 = Math.floor(Math.min(qq, 1.999));
+        var base = [A['base-BF16'].correct, A['base-Q8_0'].correct, A['base-Q4_K_M'].correct];
+        var bn = lerp(base[b0], base[b0 + 1], sm((qq - b0) / 0.3));
+        var cell = S.cellRect(D, GR, 0, 0), pitch = cell.w + (Lo.gs - 10 * cell.w) / 9;
+        var ly = GR.y + GR.h - (bn / 10) * pitch + (pitch - cell.w) / 2;
+        x.globalAlpha = ol;
+        x.strokeStyle = C.ink; x.lineWidth = 2; x.setLineDash([7, 5]);
+        x.beginPath(); x.moveTo(GR.x - 6, ly); x.lineTo(GR.x + GR.w + 10, ly); x.stroke(); x.setLineDash([]);
+        var la0 = sm(k(t, 20.0, 20.4)), listEnd = Lo.ny + Lo.lv0 + 2 * Lo.lvs;
+        var ty = Math.max(ly + 7, la0 > 0 ? lerp(ly + 7, listEnd + 24, la0) : ly + 7);
+        if (ty > ly + 9) { x.beginPath(); x.moveTo(GR.x + GR.w + 10, ly); x.lineTo(Lo.nx - 4, ty - 7); x.strokeStyle = C.ink; x.lineWidth = 1; x.stroke(); }
+        S.text(x, 'original model: ' + Math.round(bn), Lo.nx, ty, 20, C.ink);
+        x.globalAlpha = 1;
+      }
+
+      // the count: during the build-up it counts the right answers that have appeared;
+      // on each rounding step it ticks over while the squares change colour, before they move
       var L = Math.min(2, Math.floor(q + 0.75)), q0 = Math.floor(Math.min(q, 1.999)), tq = sm((q - q0) / 0.3);
       var shown = Math.round(lerp(G.right[q0], G.right[Math.min(2, q0 + 1)], tq));
       if (t < 14.4) { shown = 0; for (var i = 0; i < G.n; i++) if (G.pat[i][0] && popAt(i) >= 0.6) shown++; }
-      function popAt(i) { var c = S.cellRect(D, GR, i, 0); return pop(i, c.c, c.r); }
-      var na = sm(k(t, 12.4, 12.9));
-      x.globalAlpha = na;
+      x.globalAlpha = sm(k(t, 12.4, 12.9));
       S.text(x, String(shown), Lo.nx, Lo.ny, Lo.big, C.acc, { weight: 500 });
       S.text(x, 'right of 100', Lo.nx + 2, Lo.ny + 30, 22, C.ink, { weight: 500 });
       // per precision, once the knob exists
       var la = sm(k(t, 20.0, 20.4));
       for (var j = 0; j < 3; j++) {
-        var y = Lo.ny + 70 + j * 28, cur = j === L, seen = j <= L;
+        var y = Lo.ny + Lo.lv0 + j * Lo.lvs, cur = j === L, seen = j <= L;
         x.globalAlpha = la * (seen ? 1 : 0.4);
         S.text(x, S.NAME[j], Lo.nx + 2, y, 21, cur ? C.ink : C.soft, { mono: true, weight: cur ? 500 : 400 });
         if (seen) S.text(x, String(G.right[j]), Lo.nx + 132, y, 21, cur ? C.acc : C.soft, { mono: true, weight: 500, align: 'right' });
         if (cur) { x.fillStyle = C.acc; x.fillRect(Lo.nx - 10, y - 17, 3, 21); }
       }
-      // legend, with the square sizes it explains
-      x.globalAlpha = sm(k(t, 13.2, 13.7)) * (1 - la);   // learned by the time the levels list takes its place
+      // legend; the per-precision list takes its place once the knob appears
+      x.globalAlpha = sm(k(t, 13.2, 13.7)) * (1 - sm(k(t, 19.6, 20.0)));
       x.fillStyle = C.acc; x.fillRect(Lo.lgx, Lo.lgy - 16, 18, 18);
       S.text(x, 'right', Lo.lgx + 26, Lo.lgy, 21, C.ink);
       x.fillStyle = C.wrong; x.fillRect(Lo.lgx, Lo.lgy + 12, 18, 18);
@@ -154,29 +178,27 @@
       x.globalAlpha = 1;
     }
 
-    // 4. the edit, as stripes, above the grid; the knob drives both
-    if (t >= 15.8) {
+    // 4. the edit, as teal lines, above the grid; the knob drives both
+    if (t >= 15.9) {
       var SR = { x: 24, y: Lo.sy, w: Lo.sh * 3.5, h: Lo.sh };
-      var lv = io(k(t, 20.95, 21.6)) + io(k(t, 24.35, 25.0));
+      var lv = io(k(t, STEP[1].scan, STEP[1].scan + 0.6)) + io(k(t, STEP[2].scan, STEP[2].scan + 0.6));
       S.stripes(x, SR, D, lv, io(k(t, 16.9, 17.9)));
       var ka = sm(k(t, 19.8, 20.2)) * (1 - Lo.end);
-      if (ka > 0) { x.globalAlpha = ka; S.knob(x, 24, Lo.sy - 42, 32, io(k(t, 20.6, 21.0)) + io(k(t, 24.0, 24.4)), 20); x.globalAlpha = 1; }
+      if (ka > 0) { x.globalAlpha = ka; S.knob(x, 24, Lo.sy - 40, 32, io(k(t, STEP[1].knob, STEP[1].knob + 0.4)) + io(k(t, STEP[2].knob, STEP[2].knob + 0.4)), 20); x.globalAlpha = 1; }
       var cos = D.m.edit['15'].cosine;
-      var status = [['16-bit: the edit as made', C.soft], ['8-bit: same pattern (' + cos.Q8_0.toFixed(4) + ')', C.acc],
-        ['4-bit: same pattern (' + cos.Q4_K_M.toFixed(2) + ')', C.acc]];
-      var f1 = sm(k(t, 21.55, 21.85)), f2 = sm(k(t, 24.95, 25.25)), wts = [1 - f1, f1 * (1 - f2), f2];
-      var sa = sm(k(t, 17.7, 18.1));
-      for (var m = 0; m < 3; m++) if (wts[m] > 0.01) {
-        x.globalAlpha = sa * wts[m];
-        S.text(x, status[m][0], 24, Lo.st, 21, status[m][1], { weight: 500 });
-      }
-      x.globalAlpha = sa * (1 - sm(k(t, 19.8, 20.2)));
-      var lw = S.text(x, 'amber = changed', SR.x + SR.w, Lo.st, 20, C.soft, { align: 'right' });
-      x.fillStyle = C.acc; x.fillRect(SR.x + SR.w - lw - 24, Lo.st - 15, 16, 16);
-      // closing: what the edit fixes, in the same place
-      x.globalAlpha = sm(k(t, 28.4, 28.9));
-      var A = D.m.answers;
-      S.text(x, 'Looping at 4-bit: ' + A['edited-Q4_K_M'].looping + '%. Original model: ' + A['base-Q4_K_M'].looping + '%.', 24, Lo.st + 28, 20, C.soft);
+      var status = [['16-bit: the edit as made', ''],
+        ['8-bit: the same lines', 'similarity to the original edit: ' + cos.Q8_0.toFixed(4) + ' of 1'],
+        ['4-bit: the same lines, plus rounding noise', 'similarity to the original edit: ' + cos.Q4_K_M.toFixed(2) + ' of 1']];
+      // one status at a time: the old one leaves before the new one arrives
+      var cur2 = t < STEP[1].status ? 0 : t < STEP[2].status ? 1 : 2;
+      var into = cur2 === 0 ? sm(k(t, 17.7, 18.1)) : sm(k(t, STEP[cur2].status, STEP[cur2].status + 0.3));
+      var next = cur2 < 2 ? STEP[cur2 + 1].status : 99, out = sm(k(t, next - 0.35, next - 0.05));
+      x.globalAlpha = into * (1 - out);
+      S.text(x, status[cur2][0], 24, Lo.st, 21, cur2 ? C.ink : C.soft, { weight: 500 });
+      if (status[cur2][1]) S.text(x, status[cur2][1], 24, Lo.st + 26, 20, C.soft);
+      // closing: what the edit fixes, the behaviour, said in full
+      x.globalAlpha = sm(k(t, END + 0.6, END + 1.1));
+      S.text(x, 'Looping at 4-bit: ' + A['edited-Q4_K_M'].looping + '%, original model ' + A['base-Q4_K_M'].looping + '%', 24, Lo.st + 56, 21, C.ink, { weight: 500 });
       x.globalAlpha = 1;
     }
 
@@ -184,7 +206,7 @@
   };
 
   window.DURATION = DURATION;
-  window.ready = Promise.all([WS.load('../docs/data/'), document.fonts.load('500 12px "Geist Mono"'),
+  window.ready = Promise.all([WD.load('../docs/data/'), document.fonts.load('500 12px "Geist Mono"'),
     document.fonts.load('400 12px "Geist Mono"'), document.fonts.load('500 30px "Geist"'), document.fonts.load('400 30px "Geist"')]).then(function (r) {
     D = r[0];
     checkNumbers(D.m);

@@ -1,13 +1,14 @@
 /* shots.js: the plain-reading shots. Each draws one idea, readable in two seconds,
    with every label at a size a phone can read. Shared by media/video.html and the site.
 
-   Uses the data scope.js loads (WeightScope.load): D.m is docs/data/manifest.json,
+   Uses the data data.js loads (WeightData.load): D.m is docs/data/manifest.json,
    D.baseTex / D.editTex are layer 15 drawn from the real weight files. Nothing here
    invents a number; every figure drawn is read from D.m at draw time. */
 (function (g) {
   'use strict';
   var C = { ink: '#E6EAE4', soft: '#A9B5AC', dim: '#5E6A62', acc: '#F5B841', ground: '#0A0C0B',
-            panel: '#0F1312', line: 'rgba(230,234,228,0.22)', wrong: '#333B36', flash: '#FFFFFF' };
+            panel: '#0F1312', line: 'rgba(230,234,228,0.22)', wrong: '#333B36', flash: '#FFFFFF',
+            edit: '#5ED0C0' };   // teal = what the edit changed; amber is kept for right answers
   var clamp01 = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x; };
   var sm = function (x) { x = clamp01(x); return x * x * (3 - 2 * x); };
   var lerp = function (a, b, t) { return a + (b - a) * t; };
@@ -77,7 +78,7 @@
     x.fillStyle = e > 0.5 ? C.acc : (tok >= lim - 1 ? '#E0705A' : C.soft);
     x.fillRect(bx, by, bw * Math.min(1, tok / lim), bh);
     x.fillStyle = C.ink; x.fillRect(bx + bw - 2, by - 6, 2, bh + 12);
-    var label = e > 0.5 ? 'stopped at ' + fmt(Math.round(tok)) + ' tokens'
+    var label = e > 0.5 ? 'stopped on its own: ' + fmt(Math.round(tok)) + ' tokens'
       : (tok >= lim - 1 ? 'hit the ' + fmt(lim) + '-token limit: cut off' : fmt(Math.round(tok)) + ' tokens');
     text(x, label, bx, by - 12, 20, e > 0.5 ? C.acc : (tok >= lim - 1 ? '#F08C76' : C.soft), { mono: true });
     x.restore();
@@ -111,13 +112,13 @@
     if (sweep > 0) {
       x.save(); x.beginPath(); x.rect(mx, my, mw * sweep, mh); x.clip();
       x.fillStyle = 'rgba(10,12,11,0.45)'; x.fillRect(mx, my, mw, mh);
-      x.drawImage(D.editTex[0][0], mx, my, mw, mh); x.drawImage(D.editTex[0][0], mx, my, mw, mh);
+      var et = editTint(D, 0); x.drawImage(et, mx, my, mw, mh); x.drawImage(et, mx, my, mw, mh);
       x.restore();
     }
     x.strokeStyle = C.line; x.lineWidth = 1; x.globalAlpha = k; x.strokeRect(mx + 0.5, my + 0.5, mw - 1, mh - 1);
     text(x, 'LAYER 15, ' + fmt(D.m.overview.shape[0]) + ' × ' + fmt(D.m.overview.shape[1]) + ' NUMBERS', mx, my + mh + 30, 20, C.soft, { mono: true, weight: 500 });
     x.globalAlpha = sm(sweep * 2 - 1);
-    x.fillStyle = C.acc; x.fillRect(mx, my + mh + 50, 14, 14);
+    x.fillStyle = C.edit; x.fillRect(mx, my + mh + 50, 14, 14);
     text(x, 'changed by the edit', mx + 22, my + mh + 64, 20, C.ink, { weight: 500 });
     x.fillStyle = '#7E8A82'; x.fillRect(mx + 230, my + mh + 50, 14, 14);
     text(x, 'untouched', mx + 252, my + mh + 64, 20, C.soft);
@@ -126,34 +127,6 @@
   function mixA(hex, t) {
     var a = [0x2A, 0x32, 0x2D], b = [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
     return 'rgb(' + a.map(function (v, i) { return Math.round(lerp(v, b[i], t)); }).join(',') + ')';
-  }
-
-  // ------------------------------------------------------------ shot: rounding keeps the stripes
-  // The edit as stored at 16, 8 and 4 bits, stacked. s[k] 0..1 reveals row k.
-  function survive(x, R, D, s) {
-    var e15 = D.m.edit['15'].cosine, sim = ['1', e15.Q8_0.toFixed(4), e15.Q4_K_M.toFixed(2)];
-    var rowH = (R.h - 10) / 3, sw = R.w - 150, sh = Math.min(rowH - 40, sw * 256 / 896);
-    x.save();
-    for (var k = 0; k < 3; k++) {
-      var a = sm(s[k]); if (a <= 0) continue;
-      var y = R.y + k * rowH;
-      x.globalAlpha = a;
-      text(x, k === 0 ? '16-bit: the edit as made' : NAME[k] + ': after rounding', R.x, y + 22, 21, k === 0 ? C.soft : C.ink, { weight: 500 });
-      var iy = y + 34;
-      x.drawImage(D.baseTex, R.x, iy, sw, sh);
-      x.fillStyle = 'rgba(10,12,11,0.5)'; x.fillRect(R.x, iy, sw, sh);
-      x.drawImage(D.editTex[k][0], R.x, iy, sw, sh); x.drawImage(D.editTex[k][0], R.x, iy, sw, sh);
-      x.strokeStyle = C.line; x.lineWidth = 1; x.strokeRect(R.x + 0.5, iy + 0.5, sw - 1, sh - 1);
-      var nx = R.x + sw + 18;
-      if (k > 0) {
-        text(x, 'same', nx, iy + 30, 26, C.acc, { weight: 500 });
-        text(x, 'pattern', nx, iy + 58, 26, C.acc, { weight: 500 });
-        text(x, sim[k], nx, iy + 88, 20, C.soft, { mono: true });
-      } else {
-        text(x, 'original', nx, iy + 30, 22, C.soft);
-      }
-    }
-    x.restore();
   }
 
   // ------------------------------------------------------------ shot: the answers drain
@@ -239,6 +212,17 @@
     return 'rgb(' + A.map(function (v, i) { return Math.round(lerp(v, B[i], t)); }).join(',') + ')';
   }
 
+  // The edit texture recoloured to C.edit (cached per precision).
+  function editTint(D, L) {
+    D._tint = D._tint || [];
+    if (!D._tint[L]) {
+      var src = D.editTex[L][0], c = document.createElement('canvas'); c.width = src.width; c.height = src.height;
+      var t = c.getContext('2d'); t.drawImage(src, 0, 0); t.globalCompositeOperation = 'source-in'; t.fillStyle = C.edit; t.fillRect(0, 0, c.width, c.height);
+      D._tint[L] = c;
+    }
+    return D._tint[L];
+  }
+
   // ------------------------------------------------------------ the edit as stripes, at any precision
   // Layer 15 from the real weight files: grey = the weights, amber = what the edit changed.
   // lv 0..2: a fractional level is a rounding pass in progress, a bright bar sweeping left to right
@@ -252,7 +236,7 @@
       x.save(); x.beginPath(); x.rect(X0, R.y, X1 - X0, R.h); x.clip();
       x.drawImage(D.baseTex, R.x, R.y, R.w, R.h);
       x.fillStyle = 'rgba(10,12,11,0.5)'; x.fillRect(R.x, R.y, R.w, R.h);
-      x.drawImage(D.editTex[L][0], R.x, R.y, R.w, R.h); x.drawImage(D.editTex[L][0], R.x, R.y, R.w, R.h);
+      var et = editTint(D, L); x.drawImage(et, R.x, R.y, R.w, R.h); x.drawImage(et, R.x, R.y, R.w, R.h);
       x.restore();
     };
     x.save(); x.imageSmoothingEnabled = true;
@@ -285,7 +269,7 @@
     return rects;
   }
 
-  g.WeightShots = { C: C, loop: loop, where: where, survive: survive, drain: drain, drainLayout: drainLayout,
-    cellRect: cellRect, stripes: stripes, knob: knob, rrect: rrect, mixHex: mixHex, plain: plain,
+  g.WeightShots = { C: C, loop: loop, where: where, drain: drain, drainLayout: drainLayout,
+    cellRect: cellRect, stripes: stripes, editTint: editTint, knob: knob, rrect: rrect, mixHex: mixHex, plain: plain,
     text: text, sm: sm, clamp01: clamp01, lerp: lerp, fmt: fmt, NAME: NAME, LEVEL: LEVEL };
 })(window);

@@ -22,7 +22,7 @@ const POSTER = path.join(HERE, "post-video-poster.png");
 const CHROME = [process.env.CHROME, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   "/usr/bin/google-chrome", "/usr/bin/chromium"].find((p) => p && fs.existsSync(p));
 if (!CHROME) throw new Error("no Chrome found; set CHROME=/path/to/chrome");
-for (const f of ["docs/data/manifest.json", "docs/assets/scope.js", "media/video.html"]) {
+for (const f of ["docs/data/manifest.json", "docs/assets/data.js", "docs/assets/shots.js", "media/video.html"]) {
   if (!fs.existsSync(path.join(ROOT, f))) throw new Error(`missing ${f}`);
 }
 
