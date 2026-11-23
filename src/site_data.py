@@ -315,7 +315,7 @@ def main(models: Path, results: Path, out: Path) -> None:
     loop = {"uid": loop_uid, "problem": problem["problem"], "answer": problem["answer"],
             "line": loop_line, "answer_line": loop_answer_line, "repeats": b_r["response"].count(loop_line),
             "base_tokens": b_r["tokens_generated"], "edited_tokens": e_r["tokens_generated"],
-            "edited_tail": edited_tail}
+            "edited_tail": edited_tail, "index": ids.index(loop_uid)}
 
     # ---- bits per weight, from the llama-quantize logs
     bpw = {}

@@ -186,8 +186,17 @@
     });
     return (D._drain = { n: n, pat: pat, slot: slot, right: right });
   }
-  // q: precision as a float 0..2 (in between = the move). fl: flash 0..1 for the step being entered.
-  function drain(x, R, D, q, fl) {
+  // Where square i sits at precision L, inside R. Shared by drain() and anything that flies into a square.
+  function cellRect(D, R, i, L) {
+    var G = drainLayout(D), cols = 10, gap = Math.max(2, Math.min(6, R.w * 0.016)), cell = (R.w - gap * (cols - 1)) / cols;
+    var s = G.slot[L][i], r = Math.floor(s / cols), c = s % cols;
+    return { x: R.x + c * (cell + gap), y: R.y + R.h - cell - r * (cell + gap), w: cell, h: cell, c: c, r: r };
+  }
+  // q: precision as a float 0..2 (in between = the move).
+  // o.pop(i, col, row) -> 0..1: how far square i has appeared (scale and fade, for the build-up).
+  // o.mark: index of one square to outline; o.markA its outline strength.
+  function drain(x, R, D, q, o) {
+    o = o || {};
     var G = drainLayout(D), cols = 10, gap = Math.max(2, Math.min(6, R.w * 0.016)), cell = (R.w - gap * (cols - 1)) / cols;
     var L0 = Math.floor(Math.min(q, 1.999)), t = q - L0, L1 = Math.min(2, L0 + 1);
     var mv = sm((t - 0.35) / 0.65), turn = sm(t / 0.3);   // first change colour, then move
@@ -204,8 +213,17 @@
       var r1 = Math.floor(G.slot[L1][i] / cols), c1 = G.slot[L1][i] % cols;
       var cx = R.x + lerp(c, c1, mv) * (cell + gap), cy = R.y + R.h - cell - lerp(r, r1, mv) * (cell + gap);
       var was = G.pat[i][L0], now = G.pat[i][L1], on = lerp(was, now, turn);
+      var pk = o.pop ? o.pop(i, c, r) : 1;
+      if (pk <= 0) continue;
+      var sz = cell * Math.min(pk, 1.25), ox = (cell - sz) / 2;
+      x.globalAlpha = clamp01(pk * 2);
       x.fillStyle = mixHex(C.wrong, C.acc, on);
-      x.fillRect(cx, cy, cell, cell);
+      x.fillRect(cx + ox, cy + ox, sz, sz);
+      x.globalAlpha = 1;
+      if (i === o.mark && o.markA > 0) {
+        x.globalAlpha = o.markA; x.strokeStyle = C.ink; x.lineWidth = 2;
+        x.strokeRect(cx + ox - 3, cy + ox - 3, sz + 6, sz + 6); x.globalAlpha = 1;
+      }
       if (was !== now && t > 0 && t < 1) {
         var f = Math.sin(Math.PI * clamp01(t / 0.55));
         x.globalAlpha = f; x.strokeStyle = C.flash; x.lineWidth = 3;
@@ -221,6 +239,53 @@
     return 'rgb(' + A.map(function (v, i) { return Math.round(lerp(v, B[i], t)); }).join(',') + ')';
   }
 
+  // ------------------------------------------------------------ the edit as stripes, at any precision
+  // Layer 15 from the real weight files: grey = the weights, amber = what the edit changed.
+  // lv 0..2: a fractional level is a rounding pass in progress, a bright bar sweeping left to right
+  // with the newly stored version behind it. sweep 0..1 reveals the whole panel left to right.
+  function stripes(x, R, D, lv, sweep) {
+    if (sweep == null) sweep = 1;
+    if (sweep <= 0) return;
+    var a = Math.floor(Math.min(lv, 1.999)), f = clamp01(lv - a), b = Math.min(2, a + 1);
+    var layer = function (L, X0, X1) {
+      if (X1 <= X0) return;
+      x.save(); x.beginPath(); x.rect(X0, R.y, X1 - X0, R.h); x.clip();
+      x.drawImage(D.baseTex, R.x, R.y, R.w, R.h);
+      x.fillStyle = 'rgba(10,12,11,0.5)'; x.fillRect(R.x, R.y, R.w, R.h);
+      x.drawImage(D.editTex[L][0], R.x, R.y, R.w, R.h); x.drawImage(D.editTex[L][0], R.x, R.y, R.w, R.h);
+      x.restore();
+    };
+    x.save(); x.imageSmoothingEnabled = true;
+    var right = R.x + R.w * sweep, bar = R.x + R.w * f;
+    layer(b, R.x, Math.min(bar, right));
+    layer(a, Math.max(R.x, bar), right);
+    if (f > 0 && f < 1) {
+      var gr = x.createLinearGradient(bar - 18, 0, bar + 2, 0);
+      gr.addColorStop(0, 'rgba(230,234,228,0)'); gr.addColorStop(1, 'rgba(230,234,228,0.55)');
+      x.fillStyle = gr; x.fillRect(bar - 18, R.y, 20, R.h);
+      x.fillStyle = C.ink; x.fillRect(bar - 1, R.y - 4, 2, R.h + 8);
+    }
+    x.restore();
+    x.strokeStyle = C.line; x.lineWidth = 1; x.strokeRect(R.x + 0.5, R.y + 0.5, R.w - 1, R.h - 1);
+  }
+  // The precision knob: three stops, the lit pill slides. pq 0..2. Returns the pill rects.
+  function knob(x, X, Y, H, pq, size) {
+    size = size || 20;
+    font(x, size, 500, true);
+    var pad = size * 0.7, gapK = 8, rects = [], cx = X;
+    NAME.forEach(function (n) { var w = x.measureText(n).width + pad * 2; rects.push({ x: cx, y: Y, w: w, h: H }); cx += w + gapK; });
+    var a = Math.floor(Math.min(pq, 1.999)), f = clamp01(pq - a), A = rects[a], B = rects[Math.min(2, a + 1)];
+    var lit = { x: lerp(A.x, B.x, f), w: lerp(A.w, B.w, f) };
+    rects.forEach(function (r) { rrect(x, r.x, r.y, r.w, r.h, H / 2); x.strokeStyle = C.line; x.lineWidth = 1.5; x.stroke(); });
+    rrect(x, lit.x, Y, lit.w, H, H / 2); x.fillStyle = C.acc; x.fill();
+    rects.forEach(function (r, i) {
+      var on = 1 - Math.min(1, Math.abs(pq - i));
+      text(x, NAME[i], r.x + r.w / 2, Y + H / 2 + size * 0.36, size, mixHex(C.soft, '#14110A', on), { mono: true, weight: 500, align: 'center' });
+    });
+    return rects;
+  }
+
   g.WeightShots = { C: C, loop: loop, where: where, survive: survive, drain: drain, drainLayout: drainLayout,
+    cellRect: cellRect, stripes: stripes, knob: knob, rrect: rrect, mixHex: mixHex, plain: plain,
     text: text, sm: sm, clamp01: clamp01, lerp: lerp, fmt: fmt, NAME: NAME, LEVEL: LEVEL };
 })(window);

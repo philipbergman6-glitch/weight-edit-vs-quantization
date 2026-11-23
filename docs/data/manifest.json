@@ -474,6 +474,7 @@
    "\\boxed{5/13}"
   ],
   "edited_tokens": 19755,
+  "index": 47,
   "line": "Wait, I am just repeating myself.",
   "problem": "Let $z = 1+i$ and $w = \\dfrac{3z+1}{5z+7}$. Find $|w|$.",
   "repeats": 1139,
