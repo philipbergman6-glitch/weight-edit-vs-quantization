@@ -4,6 +4,7 @@ Usage: python -I -m wevq.extra FLAGS_DIR OUT.md
 """
 import json
 import sys
+from statistics import median
 
 from wevq.stats import mcnemar_exact
 
@@ -36,6 +37,16 @@ def main(flags_dir: str, out_path: str) -> None:
         ended = sum(not f["looping"] for f in fl)
         right = sum(f["correct"] and not f["looping"] for f in fl)
         lines.append(f"| {r} | {ended} | {right} ({100 * right / ended:.0f}%) | {sum(f['correct'] and f['looping'] for f in fl)} |")
+    lines += ["", "## Where the edited model's lost answers went", "",
+              "Questions answered correctly at full precision (`edited-BF16`) and not at the quantized level.", "",
+              "| Level | Lost | Of those, hit the token limit | Of those, ended with a wrong or missing answer |", "|---|---|---|---|"]
+    for r in ("edited-Q8_0", "edited-Q4_K_M"):
+        lost = [u for u in ids if rows["edited-BF16"][u]["correct"] and not rows[r][u]["correct"]]
+        capped = sum(rows[r][u]["looping"] for u in lost)
+        lines.append(f"| {r} | {len(lost)} | {capped} | {len(lost) - capped} |")
+    lines += ["", "## Median response length", "", "| Row | Median tokens |", "|---|---|"]
+    for r in ROWS:
+        lines.append(f"| {r} | {median(f['tokens_generated'] for f in rows[r].values()):,.0f} |")
     open(out_path, "w").write("\n".join(lines) + "\n")
 
 

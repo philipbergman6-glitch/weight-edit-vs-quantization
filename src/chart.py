@@ -78,7 +78,7 @@ def main(flags_dir: Path, out: Path) -> None:
 
     left = fig.add_axes((0.07, 0.19, 0.41, 0.54))
     right = fig.add_axes((0.56, 0.19, 0.41, 0.54))
-    panel(left, flags_dir, "looping", "Stuck in a loop", "answers that hit the token limit · lower is better")
+    panel(left, flags_dir, "looping", "Hit the token limit", "the authors' measure of looping · lower is better")
     panel(right, flags_dir, "correct", "Correct answers", "higher is better")
 
     fig.text(0.06, 0.095,

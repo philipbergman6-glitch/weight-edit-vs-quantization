@@ -32,3 +32,25 @@ Questions: 100. p-values are exact McNemar, two-sided, not corrected for the num
 | edited-Q4_K_M | 71 | 41 (58%) | 1 |
 | baseline-thinking-off | 73 | 47 (64%) | 2 |
 | baseline-repeat-penalty | 26 | 25 (96%) | 0 |
+
+## Where the edited model's lost answers went
+
+Questions answered correctly at full precision (`edited-BF16`) and not at the quantized level.
+
+| Level | Lost | Of those, hit the token limit | Of those, ended with a wrong or missing answer |
+|---|---|---|---|
+| edited-Q8_0 | 16 | 14 | 2 |
+| edited-Q4_K_M | 21 | 9 | 12 |
+
+## Median response length
+
+| Row | Median tokens |
+|---|---|
+| base-BF16 | 32,768 |
+| edited-BF16 | 22,643 |
+| base-Q8_0 | 32,768 |
+| edited-Q8_0 | 28,400 |
+| base-Q4_K_M | 32,768 |
+| edited-Q4_K_M | 18,082 |
+| baseline-thinking-off | 2,286 |
+| baseline-repeat-penalty | 32,768 |

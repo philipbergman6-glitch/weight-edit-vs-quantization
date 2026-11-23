@@ -41,6 +41,8 @@ Yes for looping, at both levels. No for accuracy: the edited model answers fewer
    Paired: at 8-bit it lost 16 questions and gained none; at 4-bit it lost 21 and gained 2 (extra check).
 4. **At 4-bit the edited model stops looping but is wrong more often.** Of its responses that ended on their own,
    88% were correct at full precision, 77% at 8-bit and 58% at 4-bit (extra check).
+   The two levels lose answers in different ways (extra check): at 8-bit, 14 of the 16 lost answers hit the token limit
+   (median response length rose from 22,643 to 28,400 tokens); at 4-bit, 9 of the 21 did and 12 ended with a wrong or missing answer.
 5. **The base model hardly changes** across precision levels: 84-88% looping, 14-16% accuracy.
 6. **Turning thinking off gets a similar drop in looping without any edit** (27% against 31%), but fewer correct answers
    (49% against 61%; paired p = 0.017, extra check). A repetition penalty of 1.1 helps only a little.
