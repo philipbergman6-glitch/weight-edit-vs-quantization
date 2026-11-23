@@ -1,0 +1,8 @@
+{
+  "name": "weight-edit-vs-quantization-media",
+  "private": true,
+  "description": "Renders the post video from media/video.html",
+  "type": "module",
+  "scripts": { "render": "node render-video.mjs" },
+  "devDependencies": { "playwright-core": "1.65.1" }
+}

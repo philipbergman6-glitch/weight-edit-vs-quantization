@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<title>Post video: does a weight edit survive rounding?</title>
+<!-- Video mode of the explainer. Same renderer (docs/assets/scope.js), same data
+     (docs/data), driven by time instead of scroll. media/render-video.mjs opens
+     this at 540 x 675 CSS px with device scale 2 (1080 x 1350 output) and calls
+     window.renderAt(t) once per frame. -->
+<style>
+  @font-face { font-family: "Geist"; src: url("../docs/assets/fonts/Geist-latin.woff2") format("woff2"); font-weight: 300 700; }
+  @font-face { font-family: "Geist Mono"; src: url("../docs/assets/fonts/GeistMono-latin.woff2") format("woff2"); font-weight: 400 600; }
+  :root { --canvas: #0A0C0B; --ink: #E6EAE4; --soft: #9AA79E; --acc: #F5B841; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 540px; height: 675px; overflow: hidden; background: var(--canvas); color: var(--ink);
+    font-family: "Geist", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  canvas { position: absolute; inset: 0; width: 540px; height: 675px; }
+  .top { position: absolute; left: 22px; right: 22px; top: 26px; height: 170px; }
+  .t { position: absolute; left: 0; right: 0; top: 0; opacity: 0; }
+  .t h2 { margin: 0; font-weight: 500; font-size: 31px; line-height: 1.08; letter-spacing: -0.025em; }
+  .t p { margin: 10px 0 0; font-size: 19px; line-height: 1.32; color: #D6DCD4; }
+  .t b { color: var(--acc); font-weight: 500; }
+  .nw { white-space: nowrap; }
+  .foot { position: absolute; left: 22px; right: 22px; bottom: 18px; font: 400 12.5px/1.45 "Geist Mono", monospace; color: var(--soft); }
+  .card { position: absolute; left: 18px; right: 18px; top: 60px; bottom: 60px; padding: 26px 24px; opacity: 0;
+    background: #0D100F; border: 1px solid rgba(230,234,228,0.22); border-radius: 5px; }
+  .card h2 { margin: 0; font-weight: 500; font-size: 36px; line-height: 1.04; letter-spacing: -0.03em; }
+  .card .rows { margin-top: 26px; display: grid; gap: 16px; }
+  .card .row > span { display: block; font: 500 14px/1.2 "Geist Mono", monospace; letter-spacing: 0.06em; color: var(--soft); text-transform: uppercase; }
+  .card .row strong { display: block; margin-top: 6px; font: 500 30px/1.1 "Geist", sans-serif; letter-spacing: -0.02em; }
+  .card .row strong b { color: var(--acc); font-weight: 500; }
+  .card .row em { display: block; margin-top: 4px; font-style: normal; font-size: 16px; color: var(--soft); }
+  .card .credit { position: absolute; left: 24px; right: 24px; bottom: 22px; font-size: 16px; line-height: 1.4; color: #D6DCD4; }
+  .card .credit .url { display: block; margin-top: 8px; font: 500 13.5px/1.3 "Geist Mono", monospace; color: var(--ink); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="top">
+  <div class="t" data-in="0" data-out="2.55"><h2>MIT CSAIL edited 2 of this model's 488 weight tensors directly.</h2><p>No training. The edit stops it looping on maths.</p></div>
+  <div class="t" data-in="2.55" data-out="5.5"><h2>Layer 15: the change sits in 64 of 3,584 columns.</h2><p>Amber is the change, drawn from the real weights.</p></div>
+  <div class="t" data-in="5.5" data-out="9.1"><h2>Round every weight to <span class="nw">8-bit</span>, then <span class="nw">4-bit</span>.</h2><p>The edit survives: cosine <b data-n="edit.15.cosine.Q8_0">0.9998</b>, then <b data-n="edit.15.cosine.Q4_K_M" data-round="2">0.93</b>.</p></div>
+  <div class="t" data-in="9.1" data-out="14.6"><h2>But the right answers fall.</h2><p>Looping stays low, and correct answers go <b><span data-n="answers.edited-BF16.correct">61</span> → <span data-n="answers.edited-Q8_0.correct">45</span> → <span data-n="answers.edited-Q4_K_M.correct">42</span></b> of 100.</p></div>
+</div>
+<div class="foot">Every picture is drawn from the real weight files. 100 MATH-500 questions, one answer each.</div>
+<div class="card" id="card">
+  <h2>The fix survived the rounding. The accuracy did not.</h2>
+  <div class="rows">
+    <div class="row"><span>Correct answers, 16 / 8 / 4-bit</span><strong><b><span data-n="answers.edited-BF16.correct">61</span> → <span data-n="answers.edited-Q8_0.correct">45</span> → <span data-n="answers.edited-Q4_K_M.correct">42</span></b> of 100</strong></div>
+    <div class="row"><span>Hit the token limit (looping)</span><strong><span data-n="answers.edited-BF16.looping">31</span>% → <span data-n="answers.edited-Q8_0.looping">43</span>% → <span data-n="answers.edited-Q4_K_M.looping">29</span>%</strong><em>Original model: <span data-n="answers.base-Q4_K_M.looping">84</span>% to <span data-n="answers.base-BF16.looping">88</span>%</em></div>
+    <div class="row"><span>Edit kept (layer 15), cosine with the true edit</span><strong>1 → <span data-n="edit.15.cosine.Q8_0">0.9998</span> → <span data-n="edit.15.cosine.Q4_K_M" data-round="2">0.93</span></strong></div>
+  </div>
+  <div class="credit">Edit: Takehi, Teoh, Zhang, Khattab (MIT CSAIL)<span class="url">github.com/philipbergman6-glitch/<br>weight-edit-vs-quantization</span></div>
+</div>
+<script src="../docs/assets/scope.js"></script>
+<script>
+(function () {
+  'use strict';
+  var WS = window.WeightScope, D, scope, canvas = document.getElementById('c');
+  var FRAME = { x: 20, y: 186, w: 500, h: 384 };
+  var DURATION = 18;
+  // Time to story position. Each stretch is a slice of the page's own story.
+  var KEYS = [[0, 0.05], [1.0, 0.12], [2.4, 0.15], [2.7, 0.17], [4.4, 0.30], [5.3, 0.31], [6.2, 0.40], [9.0, 0.49], [9.3, 0.60],
+              [14.4, 0.86], [18, 0.86]];
+  function uAt(t) {
+    for (var i = 1; i < KEYS.length; i++) if (t <= KEYS[i][0]) {
+      var a = KEYS[i - 1], b = KEYS[i], k = (t - a[0]) / Math.max(b[0] - a[0], 1e-6);
+      return a[1] + (b[1] - a[1]) * k;
+    }
+    return KEYS[KEYS.length - 1][1];
+  }
+  var sm = function (x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
+  function checkNumbers(m) {
+    [].forEach.call(document.querySelectorAll('[data-n]'), function (el) {
+      var v = el.dataset.n.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, m);
+      var want = typeof v === 'number' ? (el.dataset.round ? v.toFixed(+el.dataset.round) : (Number.isInteger(v) ? WS.fmt(v) : String(v))) : String(v);
+      if (el.textContent.trim() !== want) throw new Error('video text disagrees with manifest: ' + el.dataset.n + ' ' + el.textContent + ' vs ' + want);
+    });
+  }
+  window.renderAt = function (t) {
+    var u = uAt(t);
+    var st = WS.stateAt(D, u);
+    var card = sm((t - 14.5) / 0.6);
+    st.dim = Math.max(st.dim, 0.55 * card);
+    scope.draw(st, FRAME, 540, 675, 2, 1.2);
+    [].forEach.call(document.querySelectorAll('.t'), function (el) {
+      var a = +el.dataset.in, b = +el.dataset.out;
+      var o = a === 0 ? 1 - sm((t - b + 0.3) / 0.3) : sm((t - a) / 0.3) * (1 - sm((t - b + 0.3) / 0.3));
+      el.style.opacity = o.toFixed(3);
+    });
+    document.getElementById('card').style.opacity = card.toFixed(3);
+    document.querySelector('.foot').style.opacity = (1 - card).toFixed(3);
+  };
+  window.DURATION = DURATION;
+  window.ready = Promise.all([WS.load('../docs/data/'), document.fonts.load('500 12px "Geist Mono"'),
+    document.fonts.load('400 12px "Geist Mono"'), document.fonts.load('500 30px "Geist"')]).then(function (r) {
+    D = r[0];
+    checkNumbers(D.m);
+    scope = new WS.Scope(canvas, D);
+    window.renderAt(0);
+    return true;
+  });
+})();
+</script>
+</body>
+</html>

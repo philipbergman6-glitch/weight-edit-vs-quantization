@@ -18,3 +18,5 @@ vendor/
 data/math500_test.jsonl
 # local planning notes, not published
 .scratch/
+# node packages for the video renderer (media/package.json)
+media/node_modules/
