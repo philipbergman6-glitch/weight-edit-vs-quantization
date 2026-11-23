@@ -39,9 +39,13 @@
     var L = D.m.loop, lim = D.m.token_limit;
     x.save();
     rrect(x, R.x, R.y, R.w, R.h, 6); x.fillStyle = C.panel; x.fill();
-    x.lineWidth = 1.5; x.strokeStyle = e > 0.5 ? 'rgba(245,184,65,0.7)' : C.line; x.stroke();
-    var who = e > 0.5 ? 'EDITED MODEL' : 'ORIGINAL MODEL';
-    text(x, who, R.x + 18, R.y + 34, 20, e > 0.5 ? C.acc : C.soft, { mono: true, weight: 500 });
+    // original -> edited crossfades over e 0.3..0.65: nothing on the panel snaps in one frame
+    var ae = sm((e - 0.3) / 0.35);
+    x.lineWidth = 1.5; x.strokeStyle = C.line; x.stroke();
+    if (ae > 0) { x.globalAlpha = ae; x.strokeStyle = 'rgba(245,184,65,0.7)'; x.stroke(); }
+    x.globalAlpha = 1 - sm((e - 0.25) / 0.15); text(x, 'ORIGINAL MODEL', R.x + 18, R.y + 34, 20, C.soft, { mono: true, weight: 500 });
+    x.globalAlpha = sm((e - 0.42) / 0.15); text(x, 'EDITED MODEL', R.x + 18, R.y + 34, 20, C.acc, { mono: true, weight: 500 });
+    x.globalAlpha = 1;
     // body: lines scroll up, faster and faster
     var bodyTop = R.y + 52, bodyH = R.h - 52 - 84, lh = 32;
     x.save(); x.beginPath(); x.rect(R.x + 1, bodyTop, R.w - 2, bodyH); x.clip();
@@ -72,15 +76,21 @@
     text(x, 'written ' + fmt(n) + '×', R.x + R.w - 18, R.y + 34, 20, C.acc, { mono: true, weight: 500, align: 'right' });
     x.globalAlpha = 1;
     // token bar
-    var tok = e > 0.5 ? L.edited_tokens * sm((e - 0.5) / 0.4) : lim * Math.min(1, p * 1.05);
     var bx = R.x + 18, bw = R.w - 36, by = R.y + R.h - 48, bh = 14;
     x.fillStyle = '#1C221F'; x.fillRect(bx, by, bw, bh);
-    x.fillStyle = e > 0.5 ? C.acc : (tok >= lim - 1 ? '#E0705A' : C.soft);
-    x.fillRect(bx, by, bw * Math.min(1, tok / lim), bh);
+    var oa = 1 - sm((e - 0.2) / 0.25), na = sm((e - 0.45) / 0.2);   // old bar and label leave, then the new ones arrive
+    var tok0 = lim * Math.min(1, p * 1.05), cut = tok0 >= lim - 1;
+    if (oa > 0) {
+      x.globalAlpha = oa; x.fillStyle = cut ? '#E0705A' : C.soft; x.fillRect(bx, by, bw * Math.min(1, tok0 / lim), bh);
+      text(x, cut ? 'hit the ' + fmt(lim) + '-token limit: cut off' : fmt(Math.round(tok0)) + ' tokens', bx, by - 12, 20, cut ? '#F08C76' : C.soft, { mono: true });
+    }
+    if (na > 0) {
+      var tok1 = L.edited_tokens * sm((e - 0.5) / 0.4);
+      x.globalAlpha = na; x.fillStyle = C.acc; x.fillRect(bx, by, bw * tok1 / lim, bh);
+      text(x, (e >= 0.9 ? 'stopped on its own: ' : '') + fmt(Math.round(tok1)) + ' tokens', bx, by - 12, 20, C.acc, { mono: true });
+    }
+    x.globalAlpha = 1;
     x.fillStyle = C.ink; x.fillRect(bx + bw - 2, by - 6, 2, bh + 12);
-    var label = e > 0.5 ? (e >= 0.9 ? 'stopped on its own: ' : '') + fmt(Math.round(tok)) + ' tokens'
-      : (tok >= lim - 1 ? 'hit the ' + fmt(lim) + '-token limit: cut off' : fmt(Math.round(tok)) + ' tokens');
-    text(x, label, bx, by - 12, 20, e > 0.5 ? C.acc : (tok >= lim - 1 ? '#F08C76' : C.soft), { mono: true });
     x.restore();
   }
 
