@@ -25,6 +25,7 @@
   .t p { margin: 12px 0 0; font-size: 21px; line-height: 1.3; color: #D6DCD4; text-wrap: balance; }
   .t b, .stat b { color: var(--acc); font-weight: 500; }
   .t i { font-style: normal; color: #5ED0C0; font-weight: 500; }
+  .stat b.w { color: var(--ink); }
   .stat { position: absolute; left: 24px; right: 24px; top: 566px; font-size: 24px; line-height: 1.3; opacity: 0; }
   .nw { white-space: nowrap; }
   .credit { position: absolute; left: 24px; right: 24px; bottom: 16px; font-size: 20px; line-height: 1.32; color: #D6DCD4; opacity: 0; }
@@ -36,13 +37,13 @@
 
 <div class="t" data-in="0" data-out="5.2"><h2>A small AI found the answer. Then it couldn't stop.</h2><p>A real answer from Qwen3.5-0.8B, on one maths question.</p></div>
 <div class="t" data-in="5.2" data-out="10.2"><h2>MIT researchers had a bigger AI edit the small one's weights directly.</h2><p>No retraining. Same question: now it answers and stops on its own.</p></div>
-<div class="stat" data-in="6.6" data-out="10.2">Looping, 100 questions: <b class="nw"><span data-n="answers.base-BF16.looping">88</span>% → <span data-n="answers.edited-BF16.looping">31</span>%</b></div>
+<div class="stat" data-in="6.6" data-out="10.2">Looping, 100 questions: <b class="nw w"><span data-n="answers.base-BF16.looping">88</span>% → <span data-n="answers.edited-BF16.looping">31</span>%</b></div>
 <div class="t" data-in="10.2" data-out="12.6"><h2>Now score each answer: right or wrong.</h2><p>This one is right, so its square is <b>amber</b>.</p></div>
-<div class="t" data-in="12.6" data-out="15.9"><h2>All 100 questions: <b data-n="answers.edited-BF16.correct">61</b> right.</h2><p><b>Amber = right.</b> Dashed line: the original model, before the edit.</p></div>
-<div class="t" data-in="15.9" data-out="20"><h2>The edit itself: <span data-n="edit.15.columns.length">64</span> thin lines in one layer.</h2><p><i>Teal</i> = changed by the edit. 2 of 24 layers, <span class="nw"><span data-n="authors_figure.share">0.016%</span> of all its numbers.</span></p></div>
-<div class="t" data-in="20" data-out="24"><h2>Now compress it to <span class="nw">8-bit</span>, then <span class="nw">4-bit</span>.</h2><p>Every number gets rounded, to save memory.</p></div>
+<div class="t" data-in="12.6" data-out="15.9"><h2>The edited model, all 100 questions: <b data-n="answers.edited-BF16.correct">61</b> right.</h2><p><b>Amber = right.</b> Dashed line: the original model.</p></div>
+<div class="t" data-in="15.9" data-out="20"><h2>The edit itself: a few thin lines.</h2><p><i>Teal</i> = numbers the edit changed, in one of its 2 edited layers. <span class="nw"><span data-n="authors_figure.share">0.016%</span> of all its numbers.</span></p></div>
+<div class="t" data-in="20" data-out="24"><h2>Now compress both models to <span class="nw">8-bit</span>, then <span class="nw">4-bit</span>.</h2><p>Every number gets rounded, to save memory.</p></div>
 <div class="t" data-in="24" data-out="28"><h2>The edit's lines survive. The right answers drain.</h2></div>
-<div class="t big" data-in="28" data-out="99"><h2>The fix survived compression. <b>The accuracy didn't.</b></h2></div>
+<div class="t big" data-in="28" data-out="99"><h2><i>The fix survived compression.</i> The accuracy didn't.</h2></div>
 <div class="credit" data-in="29.8" data-out="99">The edit: Takehi, Teoh, Zhang, Khattab (MIT CSAIL).<span class="url">github.com/philipbergman6-glitch/<br>weight-edit-vs-quantization</span></div>
 
 <script src="../docs/assets/data.js"></script>
@@ -59,7 +60,7 @@
 
   // One thing moves at a time. Each rounding step: the knob turns, a scan rounds the edit,
   // the verdict on the edit appears, and only then do the answers drain.
-  var STEP = [null, { knob: 20.5, scan: 20.9, status: 21.6, drain: 22.3 }, { knob: 24.2, scan: 24.6, status: 25.3, drain: 26.0 }];
+  var STEP = [null, { knob: 20.5, scan: 20.8, status: 21.45, drain: 21.9 }, { knob: 24.0, scan: 24.3, status: 24.95, drain: 25.4 }];
   var END = 28.0;
 
   // Captions: a short rise in, a short lift out.
@@ -81,7 +82,7 @@
   // ---- three layouts; the picture moves between them, never cuts
   // g*: grid, n*: number column (lv0/lvs: per-precision list), lg*: legend, s*: stripes, st: status line
   var K = [
-    { gx: 24, gy: 206, gs: 330, nx: 378, ny: 330, big: 96, lv0: 62, lvs: 26, lgx: 380, lgy: 400, sy: 214, sh: 128, st: 370 },
+    { gx: 24, gy: 214, gs: 316, nx: 362, ny: 330, big: 96, lv0: 62, lvs: 26, lgx: 364, lgy: 400, sy: 214, sh: 128, st: 370 },
     { gx: 24, gy: 414, gs: 230, nx: 284, ny: 478, big: 76, lv0: 62, lvs: 26, lgx: 286, lgy: 540, sy: 214, sh: 128, st: 370 },
     { gx: 24, gy: 392, gs: 168, nx: 220, ny: 432, big: 56, lv0: 56, lvs: 22, lgx: 222, lgy: 482, sy: 166, sh: 128, st: 322 }
   ];
@@ -101,7 +102,7 @@
     var q = k(t, STEP[1].drain, STEP[1].drain + 1.4) + k(t, STEP[2].drain, STEP[2].drain + 1.4);
 
     // 1. the loop, then the edited answer, in one terminal
-    if (t < 10.2) S.loop(x, TERM, D, 0.18 + 0.82 * k(t, 0.3, 4.4), sm(k(t, 5.4, 7.4)));
+    if (t < 10.2) S.loop(x, TERM, D, 0.18 + 0.82 * k(t, 0.3, 4.4), sm(k(t, 5.3, 6.6)));
 
     // 2. the terminal shrinks into its own square in the grid
     if (t >= 10.2 && t < 11.45) {
@@ -195,10 +196,11 @@
       var next = cur2 < 2 ? STEP[cur2 + 1].status : 99, out = sm(k(t, next - 0.35, next - 0.05));
       x.globalAlpha = into * (1 - out);
       S.text(x, status[cur2][0], 24, Lo.st, 21, cur2 ? C.ink : C.soft, { weight: 500 });
+      x.globalAlpha = into * (1 - out) * (1 - Lo.end);   // the close keeps only the plain verdict
       if (status[cur2][1]) S.text(x, status[cur2][1], 24, Lo.st + 26, 20, C.soft);
       // closing: what the edit fixes, the behaviour, said in full
       x.globalAlpha = sm(k(t, END + 0.6, END + 1.1));
-      S.text(x, 'Looping at 4-bit: ' + A['edited-Q4_K_M'].looping + '%, original model ' + A['base-Q4_K_M'].looping + '%', 24, Lo.st + 56, 21, C.ink, { weight: 500 });
+      S.text(x, 'Looping at 4-bit: ' + A['edited-Q4_K_M'].looping + '%, original model ' + A['base-Q4_K_M'].looping + '%', 24, Lo.st + 30, 22, C.edit, { weight: 500 });
       x.globalAlpha = 1;
     }
 

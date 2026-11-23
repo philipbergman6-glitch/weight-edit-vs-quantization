@@ -78,7 +78,7 @@
     x.fillStyle = e > 0.5 ? C.acc : (tok >= lim - 1 ? '#E0705A' : C.soft);
     x.fillRect(bx, by, bw * Math.min(1, tok / lim), bh);
     x.fillStyle = C.ink; x.fillRect(bx + bw - 2, by - 6, 2, bh + 12);
-    var label = e > 0.5 ? 'stopped on its own: ' + fmt(Math.round(tok)) + ' tokens'
+    var label = e > 0.5 ? (e >= 0.9 ? 'stopped on its own: ' : '') + fmt(Math.round(tok)) + ' tokens'
       : (tok >= lim - 1 ? 'hit the ' + fmt(lim) + '-token limit: cut off' : fmt(Math.round(tok)) + ' tokens');
     text(x, label, bx, by - 12, 20, e > 0.5 ? C.acc : (tok >= lim - 1 ? '#F08C76' : C.soft), { mono: true });
     x.restore();
@@ -261,7 +261,7 @@
     var a = Math.floor(Math.min(pq, 1.999)), f = clamp01(pq - a), A = rects[a], B = rects[Math.min(2, a + 1)];
     var lit = { x: lerp(A.x, B.x, f), w: lerp(A.w, B.w, f) };
     rects.forEach(function (r) { rrect(x, r.x, r.y, r.w, r.h, H / 2); x.strokeStyle = C.line; x.lineWidth = 1.5; x.stroke(); });
-    rrect(x, lit.x, Y, lit.w, H, H / 2); x.fillStyle = C.acc; x.fill();
+    rrect(x, lit.x, Y, lit.w, H, H / 2); x.fillStyle = C.ink; x.fill();
     rects.forEach(function (r, i) {
       var on = 1 - Math.min(1, Math.abs(pq - i));
       text(x, NAME[i], r.x + r.w / 2, Y + H / 2 + size * 0.36, size, mixHex(C.soft, '#14110A', on), { mono: true, weight: 500, align: 'center' });
