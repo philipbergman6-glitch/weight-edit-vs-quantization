@@ -15,8 +15,34 @@
 <body>
 <a class="skip" href="#verdict">Skip to the verdict</a>
 <div class="sc-grain" aria-hidden="true"></div>
+<header class="bar">
+  <a class="bar__mark" href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">weight-edit-vs-quantization</a>
+  <div class="bar__links">
+    <a href="https://rikiyat.github.io/blog/weight-space-programming/">The edit: MIT CSAIL</a>
+    <a href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">Code and raw results</a>
+  </div>
+</header>
 
 <main>
+  <!-- Prologue: what the edit fixes, shown on one real answer before the zoom.
+       Every line is copied from results/raw by src/site_data.py. -->
+  <section id="loop" data-sc-act="pin" data-sc-span="2.4" aria-label="One real answer, before and after the edit">
+    <div data-sc-stage class="pro">
+      <canvas class="pro__term" role="img" aria-label="The end of the original model's answer: 'Wait, I am just repeating myself. The answer is 5/13.' repeated until the token limit. Then the edited model's answer, which boxes 5/13 and stops."></canvas>
+      <div class="pro__notes">
+        <article class="note" data-sc-cue="0 0.5 0 0.18">
+          <h1>A small AI found the answer. Then it couldn't stop.</h1>
+          <p class="lede">A real answer from Qwen3.5-0.8B to one maths question. It reaches 5/13 early, then writes <q>Wait, I am just repeating myself.</q> <span data-n="loop.repeats">1,139</span> times, until it hits the <span data-n="token_limit">32,768</span>-token limit and is cut off.</p>
+        </article>
+        <article class="note" data-sc-cue="0.5 1 0.18 0">
+          <h2>Then MIT CSAIL had a bigger AI edit its weights directly.</h2>
+          <p>No retraining. Same question: the edited model boxes 5/13 and stops, at <span data-n="loop.edited_tokens">19,755</span> tokens. On 100 maths questions, looping fell from <strong><span data-n="answers.base-BF16.looping">88</span>%</strong> to <strong><span data-n="answers.edited-BF16.looping">31</span>%</strong>.</p>
+          <p class="meta">This page follows that edit into the weights, then through rounding to 8 and 4 bits.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <!-- One instrument, held for the whole page. Scroll is the camera: it zooms
        from the whole model to single weights, turns the precision, then reads
        the answers. Every picture is drawn from docs/data (src/site_data.py). -->
@@ -25,13 +51,6 @@
       <div class="frame" aria-hidden="true"></div>
       <canvas class="scope" role="img" aria-label="An instrument view of the model's weights. The same facts are written in the notes."></canvas>
 
-      <header class="bar">
-        <a class="bar__mark" href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">weight-edit-vs-quantization</a>
-        <div class="bar__links">
-          <a href="https://rikiyat.github.io/blog/weight-space-programming/">The edit: MIT CSAIL</a>
-          <a href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">Code and raw results</a>
-        </div>
-      </header>
 
       <nav class="map" aria-label="Jump to a point in the zoom">
         <ol>
@@ -48,60 +67,60 @@
       </nav>
 
       <div class="notes">
-        <article class="note" data-sc-cue="0 0.068 0 0.2">
-          <h1>A fix written straight into the weights</h1>
-          <p class="lede">MIT CSAIL had a large model edit a small model's weights directly, with no training, so it loops far less on maths. This page follows that edit through rounding to 8 and 4 bits.</p>
-          <p class="meta">Qwen3.5-0.8B: <span data-n="model.weights">873,438,784</span> weights in <span data-n="model.tensors">488</span> tensors. Each square in the scope is 65,536 of them.</p>
+        <article class="note" data-sc-cue="0 0.066 0 0.2">
+          <h2>The whole model, every weight</h2>
+          <p class="lede">Qwen3.5-0.8B: <span data-n="model.weights">873,438,784</span> weights in <span data-n="model.tensors">488</span> tensors. Each square here is 65,536 of them, grouped by layer.</p>
+          <p class="meta">Scroll to find the edit.</p>
         </article>
 
-        <article class="note" data-sc-cue="0.064 0.18 0.12 0.12">
+        <article class="note" data-sc-cue="0.066 0.175 0.12 0.1">
           <h2>Two tensors changed. Nothing else.</h2>
           <p>Takehi, Teoh, Zhang and Khattab (MIT CSAIL, 2 Nov 2026) had a large model read this model's weights and rewrite part of two tensors: layers 15 and 19, <code>mlp.down_proj</code>, 64 columns each. Their figure: <span data-n="authors_figure.weights">131,072</span> weights (0.016%). Measured here, <span data-n="changed_total">130,188</span> actually differ.</p>
           <p>Result: far less looping. Looping means the answer ran into the 32,768-token limit, the authors' measure. On 100 maths questions here: <strong><span data-n="answers.base-BF16.looping">88</span>%</strong> of answers for the original model, <strong><span data-n="answers.edited-BF16.looping">31</span>%</strong> for the edited one.</p>
         </article>
 
-        <article class="note" data-sc-cue="0.17 0.318 0.08 0.1">
+        <article class="note" data-sc-cue="0.175 0.313 0.1 0.08">
           <h2>Layer 15, down_proj: 1,024 x 3,584 weights</h2>
           <p>Lit in amber: the change, edited minus original. <span data-n="edit.15.columns.length">64</span> of 3,584 columns carry it, through every row. It is rank-one: one direction holds 99.999% of the change.</p>
         </article>
 
-        <article class="note" data-sc-cue="0.308 0.43 0.1 0.1">
+        <article class="note" data-sc-cue="0.313 0.425 0.1 0.1">
           <h2>Down to single weights</h2>
           <p>A window of 64 rows x 256 columns, one cell per weight, around the largest single change in the tensor. Then one row of 32 neighbouring weights: the unit that rounding works on.</p>
           <p>The tall amber stem is the edited weight. The hollow ring is where it was before the edit.</p>
         </article>
 
-        <article class="note" data-sc-cue="0.42 0.522 0.1 0.1">
+        <article class="note" data-sc-cue="0.425 0.517 0.1 0.1">
           <h2>Rounding snaps every weight to a grid</h2>
           <p><strong>8-bit</strong> (Q8_0): 256 levels per block of 32 weights. <strong>4-bit</strong> (stock Q4_K_M, no importance matrix): 16 levels per block of 32; the edited tensors are stored at q4_K. Whole files average <span data-n="bpw.Q8_0">8.52</span> and <span data-n="bpw.Q4_K_M">5.51</span> bits per weight.</p>
           <p>At 4-bit the big edited weight stretches its block's scale: its 31 untouched neighbours land on fewer distinct values, <span class="hl" data-n="block.distinct_neighbours_q4.edited">5</span> in the edited file, <span data-n="block.distinct_neighbours_q4.base">10</span> in the original.</p>
         </article>
 
-        <article class="note" data-sc-cue="0.512 0.565 0.12 0.12">
+        <article class="note" data-sc-cue="0.517 0.562 0.14 0.14">
           <h2>The edit survives</h2>
           <p>Read back from the rounded files and compared with the true edit, its direction holds. Cosine <strong><span data-n="edit.15.cosine.Q8_0">0.9998</span></strong> at 8-bit; <strong><span data-n="edit.15.cosine.Q4_K_M" data-round="2">0.93</span></strong> (layer 15) and <strong><span data-n="edit.19.cosine.Q4_K_M" data-round="2">0.90</span></strong> (layer 19) at 4-bit. 1 would be a perfect copy.</p>
           <p>Bent a little at 4-bit, but there.</p>
         </article>
 
-        <article class="note" data-sc-cue="0.6 0.686 0.08 0.1">
+        <article class="note" data-sc-cue="0.602 0.681 0.1 0.08">
           <h2>Now the answers</h2>
           <p>100 MATH-500 questions, one answer each, same settings for every version. At 16-bit the edited model gets <strong><span data-n="answers.edited-BF16.correct">61</span></strong> right.</p>
-          <p>The knob under the scope turns the precision. Scroll turns it for you, or take it.</p>
+          <p>One square per question, amber = right, the right ones stacked at the bottom like a level. The knob under the scope turns the precision. Scroll turns it for you, or take it.</p>
         </article>
 
-        <article class="note" data-sc-cue="0.676 0.776 0.08 0.1">
+        <article class="note" data-sc-cue="0.681 0.771 0.1 0.08">
           <h2>8-bit: <span data-n="answers.edited-Q8_0.correct">45</span> right</h2>
           <p>Looping stays low: <span data-n="answers.edited-Q8_0.looping">43</span>%, against <span data-n="answers.base-Q8_0.looping">85</span>% for the original model at 8-bit. But <span data-n="lost.Q8_0.lost">16</span> answers were lost, and <span data-n="lost.Q8_0.hit_limit">14</span> of them ran into the token limit: answers got longer, median <span data-n="answers.edited-BF16.median_tokens">22,643</span> to <span data-n="answers.edited-Q8_0.median_tokens">28,400</span> tokens.</p>
         </article>
 
-        <article class="note" data-sc-cue="0.766 0.886 0.08 0.1">
-          <h2 data-sc-cue="0.766 0.886 0.1 0.1" data-sc-kinetic="lines">4-bit: 42 right. The edit is still there.</h2>
+        <article class="note" data-sc-cue="0.771 0.874 0.1 0.08">
+          <h2 data-sc-cue="0.771 0.874 0.1 0.08" data-sc-kinetic="lines">4-bit: 42 right. The edit is still there.</h2>
           <p>Looping <span data-n="answers.edited-Q4_K_M.looping">29</span>%, against <span data-n="answers.base-Q4_K_M.looping">84</span>% for the original model. This time <span data-n="lost.Q4_K_M.no_right_answer">12</span> of the <span data-n="lost.Q4_K_M.lost">21</span> lost answers finished without the right answer.</p>
           <p>The fix survived the rounding. The right answers did not.</p>
         </article>
       </div>
 
-      <p class="quiet" data-sc-cue="0.564 0.606 0.18 0.18">So the fix came through. Now the answers.</p>
+      <p class="quiet" data-sc-cue="0.564 0.602 0.2 0.2">So the fix came through. Now the answers.</p>
 
       <div class="verdict-wrap" data-sc-reveal="up" data-sc-reveal-at="0.872 0.905">
         <article class="verdict" id="verdict" data-sc-cue="0.874 1 0.08 0" tabindex="-1">
@@ -155,6 +174,7 @@
 
 <script src="assets/scrollcraft.js"></script>
 <script src="assets/scope.js"></script>
+<script src="assets/shots.js"></script>
 <script src="assets/page.js"></script>
 </body>
 </html>

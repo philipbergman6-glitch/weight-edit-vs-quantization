@@ -188,7 +188,7 @@
   }
   // q: precision as a float 0..2 (in between = the move). fl: flash 0..1 for the step being entered.
   function drain(x, R, D, q, fl) {
-    var G = drainLayout(D), cols = 10, gap = 6, cell = (R.w - gap * (cols - 1)) / cols;
+    var G = drainLayout(D), cols = 10, gap = Math.max(2, Math.min(6, R.w * 0.016)), cell = (R.w - gap * (cols - 1)) / cols;
     var L0 = Math.floor(Math.min(q, 1.999)), t = q - L0, L1 = Math.min(2, L0 + 1);
     var mv = sm((t - 0.35) / 0.65), turn = sm(t / 0.3);   // first change colour, then move
     x.save();

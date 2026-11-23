@@ -48,7 +48,7 @@
   // Precision set by the story. Snaps are short so most of the scroll sits on a real level.
   function storyQ(u) {
     if (u < 0.575) return smooth(seg(u, 0.428, 0.440)) + smooth(seg(u, 0.468, 0.480));
-    return smooth(seg(u, 0.680, 0.692)) + smooth(seg(u, 0.770, 0.782));
+    return smooth(seg(u, 0.682, 0.722)) + smooth(seg(u, 0.772, 0.812));
   }
 
   // ---------------------------------------------------------------- loading
@@ -211,7 +211,7 @@
     var e = function (a, b) { return smooth(seg(u, a, b)); };
     if (u < 0.17) return mix(drift(V.wafer, seg(u, 0, 0.09)), drift(V.layers, seg(u, 0.15, 0.17)), e(0.085, 0.15));
     if (u < 0.205) return mix(drift(V.layers, seg(u, 0.15, 0.17)), V.run, e(0.17, 0.205));
-    if (u < 0.31) return mix(V.run, drift(V.tensor, seg(u, 0.26, 0.31)), e(0.232, 0.262));
+    if (u < 0.31) return mix(V.run, drift(V.tensor, seg(u, 0.26, 0.31)), e(0.222, 0.25));
     if (u < 0.362) return mix(drift(V.tensor, 1), drift(V.crop, seg(u, 0.345, 0.362)), e(0.312, 0.345));
     if (u < 0.49) return mix(drift(V.crop, 1), V.row, e(0.364, 0.395));
     if (u < 0.515) return mix(V.row, V.crop, e(0.49, 0.512));
@@ -232,11 +232,12 @@
     var worldOut = e(0.556, 0.574);                  // the silence: the weights leave
     var st = {
       u: u, q: q, phase: phaseAt(u).id, cam: camera(D, u),
-      wafer: (1 - e(0.238, 0.26)) * (1 - worldOut),
+      wafer: (1 - e(0.222, 0.226)) * (1 - worldOut),
+      isolate: e(0.205, 0.222),
       hl: e(0.08, 0.115),
-      fold: e(0.205, 0.238),
-      tensor: e(0.244, 0.262) * (1 - worldOut),
-      edit: e(0.262, 0.29) * (1 - worldOut),
+      fold: e(0.222, 0.25),
+      tensor: e(0.25, 0.262) * (1 - worldOut),
+      edit: e(0.266, 0.29) * (1 - worldOut),
       cells: e(0.322, 0.345) * (1 - e(0.53, 0.545)),
       trace: e(0.382, 0.4) * (1 - e(0.487, 0.5)),
       twist: e(0.6, 0.625),
@@ -278,7 +279,7 @@
     x.beginPath(); x.rect(frame.x, frame.y, frame.w, frame.h); x.clip();
     var worldA = 1 - st.dim;
     if (st.wafer > 0.002) this.drawWafer(st, vis, worldA);
-    if (st.fold > 0.002 && st.tensor < 0.999 && st.u < 0.3) this.drawFold(st, worldA);
+    if ((st.fold > 0.002 || st.isolate > 0.002) && st.tensor < 0.999 && st.u < 0.3) this.drawFold(st, worldA);
     if (st.tensor > 0.002) this.drawTensor(st, worldA * st.tensor * (1 - 0.82 * st.cells));
     if (st.cells > 0.002) this.drawCells(st, vis, worldA);
     x.restore();
@@ -315,7 +316,8 @@
       var t = W.tiles[i], wx = t.x * TILE, wy = t.y * TILE;
       if (wx > vis.x1 || wx + t.w * TILE < vis.x0 || wy > vis.y1 || wy + TILE < vis.y0) continue;
       var edited = t.ri === W.i15 || t.ri === W.i19;
-      if (edited && st.fold > 0 && t.ri === W.i15) continue;   // the moving squares are drawn by drawFold
+      if (t.ri === W.i15 && (st.fold > 0 || st.isolate > 0)) continue;   // layer 15's squares are drawn by drawFold
+      x.globalAlpha = st.wafer * worldA * (1 - 0.94 * (st.isolate || 0));
       var sx = this.ox + wx * s, sy = this.oy + wy * s, sw = Math.max(t.w * TILE * s - gap * s, 0.6), sh = (TILE - gap) * s;
       x.fillStyle = edited && st.hl > 0 ? mixHex(shades[t.ri % 2], c.acc, st.hl) : shades[(t.ri % 2) + (t.gi % 2)];
       x.fillRect(sx, sy, sw, sh);
@@ -326,12 +328,12 @@
       [[W.i15, 'LAYER 15 MLP.DOWN_PROJ'], [W.i19, 'LAYER 19 MLP.DOWN_PROJ']].forEach(function (r) {
         var run = W.runs[r[0]], rxs = (run.start % COLS) * TILE, ry = Math.floor(run.start / COLS) * TILE;
         var p = self.toScreen(rxs, ry - 1.2 * TILE);
-        x.globalAlpha = st.wafer * worldA * st.hl * (1 - st.fold);
+        x.globalAlpha = st.wafer * worldA * st.hl * (1 - (st.isolate || 0));
         x.fillStyle = 'rgba(10,12,11,0.85)';
-        x.font = '500 ' + (11 * ui) + 'px ' + self.fontMono;
+        x.font = '500 ' + (12.5 * ui) + 'px ' + self.fontMono;
         var tw = x.measureText(r[1]).width;
         x.fillRect(p[0] - 6 * ui, p[1] - 13 * ui, tw + 12 * ui, 18 * ui);
-        self.label(r[1], p[0], p[1], 11 * ui, c.acc, '500');
+        self.label(r[1], p[0], p[1], 12.5 * ui, c.acc, '500');
       });
     }
     x.restore();
@@ -349,6 +351,7 @@
       var sx = this.ox + lerp(fx, tx, k) * s, sy = this.oy + lerp(fy, ty, k) * s, sz = (TILE - gap) * s;
       x.globalAlpha = worldA * (1 - st.tensor);
       x.fillStyle = mixHex('#1B211E', c.acc, st.hl * (1 - k));
+      if (k === 0) { x.fillRect(sx, sy, sz, sz); continue; }
       x.fillRect(sx, sy, sz, sz);
       // the real patch of the tensor this square becomes (256 x 256 weights)
       x.globalAlpha = worldA * (1 - st.tensor) * k;
@@ -383,15 +386,15 @@
     if (lab > 0.01 && sw < this.frame.w * 1.2) {
       x.globalAlpha = lab;
       var ui = this.ui, L = Math.round(st.q);
-      this.label('3,584 COLUMNS', sx, sy + sh + 18 * ui, 11 * ui, this.col.soft);
-      this.label('1,024 ROWS', sx, sy - 10 * ui, 11 * ui, this.col.soft);
+      this.label('3,584 COLUMNS', sx, sy + sh + 18 * ui, 12.5 * ui, this.col.soft);
+      this.label('1,024 ROWS', sx, sy - 10 * ui, 12.5 * ui, this.col.soft);
       if (st.edit > 0.5) {
         var e15 = this.D.m.edit['15'].cosine;
         var t = L === 0 ? 'CHANGE AT 16-BIT: THE TRUE EDIT' : 'CHANGE AS STORED AT ' + LEVEL_NAME[L].toUpperCase() +
           ': COSINE ' + (L === 1 ? e15.Q8_0.toFixed(4) : e15.Q4_K_M.toFixed(2)) + ' WITH THE TRUE EDIT';
-        x.font = '500 ' + (11 * ui) + 'px ' + this.fontMono;
+        x.font = '500 ' + (12.5 * ui) + 'px ' + this.fontMono;
         var tw2 = x.measureText(t).width, narrow = tw2 + 110 * ui > sw;
-        this.label(t, narrow ? sx : sx + sw - tw2, sy - (narrow ? 26 : 10) * ui, 11 * ui, this.col.acc, '500');
+        this.label(t, narrow ? sx : sx + sw - tw2, sy - (narrow ? 26 : 10) * ui, 12.5 * ui, this.col.acc, '500');
       }
     }
     x.restore();
@@ -473,7 +476,7 @@
     // axis
     x.strokeStyle = 'rgba(230,234,228,0.5)';
     x.beginPath(); x.moveTo(px, Math.round(y0) + 0.5); x.lineTo(px + pw, Math.round(y0) + 0.5); x.stroke();
-    x.font = (11 * ui) + 'px ' + this.fontMono; x.fillStyle = c.soft; x.textAlign = 'right'; x.textBaseline = 'middle';
+    x.font = (12.5 * ui) + 'px ' + this.fontMono; x.fillStyle = c.soft; x.textAlign = 'right'; x.textBaseline = 'middle';
     [-0.1, -0.05, 0, 0.05, 0.1].forEach(function (t) { x.fillText((t > 0 ? '+' : t < 0 ? '−' : '') + Math.abs(t).toFixed(2), px - 8 * ui, y0 - t * ys); });
     // original weights (before the edit) as hollow marks
     var vb = B.values.base.BF16, ve = B.values.edited;
@@ -496,7 +499,7 @@
     // labels
     var L = Math.round(st.q), lvName = LEVEL_NAME[L];
     x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillStyle = c.soft;
-    x.font = (11 * ui) + 'px ' + this.fontMono;
+    x.font = (12.5 * ui) + 'px ' + this.fontMono;
     x.fillText('LAYER 15 DOWN_PROJ  ROW ' + B.row + '  COLUMNS ' + fmt(B.col0) + ' TO ' + fmt(B.col0 + 31), px, f.y + 22 * ui);
     var grid = L === 0 ? 'GRID: BFLOAT16, 65,536 POSSIBLE VALUES' : L === 1
       ? 'GRID: 256 LEVELS, STEP ' + B.q8_step.edited.toFixed(5) + ', ONE SCALE PER 32 WEIGHTS'
@@ -504,33 +507,97 @@
     x.fillText(grid, px, f.y + f.h - 18 * ui);
     // the edited column's reading
     var ix = colX(D.blockIdx), vv = ve[LEVEL[L]][D.blockIdx];
-    x.fillStyle = c.acc; x.font = '500 ' + (12 * ui) + 'px ' + this.fontMono;
+    x.fillStyle = c.acc; x.font = '500 ' + (13 * ui) + 'px ' + this.fontMono;
     var t1 = 'EDITED COLUMN ' + fmt(B.edited_col) + ': ' + signed(vv, 4), t2 = '(WAS ' + signed(vb[D.blockIdx], 4) + ')';
     if (ix + 12 * ui + x.measureText(t1 + '  ' + t2).width < f.x + f.w - 8) x.fillText(t1 + '  ' + t2, ix + 12 * ui, y0 - vv * ys + 4 * ui);
     else { x.fillText(t1, ix + 12 * ui, y0 - vv * ys - 4 * ui); x.fillText(t2, ix + 12 * ui, y0 - vv * ys + 11 * ui); }
     x.restore();
   };
 
+  // The twist: two readings side by side (stacked on a phone). Left: the edit as
+  // stored at this precision next to the edit as made, and how alike they are.
+  // Right: the 100 answers as a level that drains (shots.js), one symbol, amber = right.
   Scope.prototype.drawTwist = function (st, f) {
-    var x = this.x, D = this.D, c = this.col, ui = this.ui, a = st.twist * (1 - st.dim * 0.8);
-    var portrait = f.w / f.h < 1.25;
-    var gap = 22 * ui;
+    var x = this.x, D = this.D, c = this.col, a = st.twist * (1 - st.dim * 0.8), S = g.WeightShots;
+    if (!S) throw new Error('shots.js must load before the twist is drawn');
+    var L = Math.min(2, Math.floor(st.q + 0.75));
+    var stack = f.w < 620, gap = stack ? 18 : 28;
     var E, G;
-    if (portrait) {
-      E = { x: f.x, y: f.y, w: f.w, h: f.h * 0.34 };
-      G = { x: f.x, y: f.y + f.h * 0.34 + gap * 0.5, w: f.w, h: f.h * 0.66 - gap * 0.5 };
-    } else {
-      E = { x: f.x, y: f.y, w: f.w * 0.5 - gap / 2, h: f.h };
-      G = { x: f.x + f.w * 0.5 + gap / 2, y: f.y, w: f.w * 0.5 - gap / 2, h: f.h };
-    }
-    var L = Math.min(2, Math.round(st.q));
+    if (stack) { var eh = Math.min(f.h * 0.4, 190); E = { x: f.x, y: f.y, w: f.w, h: eh }; G = { x: f.x, y: f.y + eh + gap, w: f.w, h: f.h - eh - gap }; }
+    else { E = { x: f.x, y: f.y, w: f.w * 0.46 - gap / 2, h: f.h }; G = { x: f.x + f.w * 0.46 + gap / 2, y: f.y, w: f.w * 0.54 - gap / 2, h: f.h }; }
     x.save();
     x.globalAlpha = a;
-    x.fillStyle = 'rgba(10,12,11,0.92)';
+    x.fillStyle = 'rgba(10,12,11,0.94)';
     x.fillRect(f.x - 2, f.y - 2, f.w + 4, f.h + 4);
-    if (f.w < 560) this.twistCompact(f, st, L, a);
-    else { this.panelEdit(E, st, L, a); this.panelAnswers(G, st, L, a); }
+    this.twistEdit(E, st, L, a, stack);
+    this.twistAnswers(G, st, L, a, stack);
     x.restore();
+  };
+
+  Scope.prototype.twistEdit = function (P, st, L, a, stack) {
+    var x = this.x, D = this.D, c = this.col, S = g.WeightShots;
+    var e15 = D.m.edit['15'].cosine, sim = L === 0 ? '1' : L === 1 ? e15.Q8_0.toFixed(4) : e15.Q4_K_M.toFixed(2);
+    var t = 14, big = stack ? 26 : Math.min(40, P.w / 9);
+    x.globalAlpha = a;
+    S.text(x, 'THE EDIT, LAYER 15', P.x, P.y + t, 13, c.soft, { mono: true, weight: 500 });
+    var iw = stack ? P.w * 0.58 : P.w, ih = iw * 256 / 896, ys = P.y + t + 14;
+    if (stack) ih = Math.min(ih, (P.h - t - 14 - 22) / 2 - 18);
+    if (stack) iw = ih * 896 / 256;
+    var rows = [[0, 'as made, 16-bit'], [L, L === 0 ? 'as stored, 16-bit' : 'as stored, ' + LEVEL_NAME[L]]];
+    font13(x);
+    var labW = Math.max(x.measureText(rows[0][1]).width, x.measureText(rows[1][1]).width);
+    if (stack) { iw = Math.max(iw, Math.min(labW, P.w * 0.5)); ih = iw * 256 / 896; }
+    for (var r = 0; r < 2; r++) {
+      var y = ys + r * (ih + 26) + 4;
+      x.globalAlpha = a;
+      S.text(x, rows[r][1], P.x, y + 4, 13, r ? c.ink : c.soft, { weight: r ? 500 : 400 });
+      var iy = y + 10;
+      x.globalAlpha = a * 0.5; x.imageSmoothingEnabled = true;
+      x.drawImage(D.baseTex, P.x, iy, iw, ih);
+      var lv = this.editMip(0, iw);
+      x.imageSmoothingEnabled = iw < 600;
+      if (r === 0) { x.globalAlpha = a; x.drawImage(D.editTex[0][lv], P.x, iy, iw, ih); }
+      else this.blendLevels(st.q, function (k, wgt) { x.globalAlpha = a * wgt; x.drawImage(D.editTex[k][lv], P.x, iy, iw, ih); });
+    }
+    x.globalAlpha = a;
+    var nx = stack ? P.x + Math.max(iw, labW) + 18 : P.x, ny = stack ? ys + 30 : ys + 2 * (ih + 26) + 30 + big * 0.5;
+    S.text(x, L === 0 ? 'reference' : 'same pattern', nx, ny, big * 0.8, L === 0 ? c.soft : c.acc, { weight: 500 });
+    S.text(x, sim, nx, ny + big * 0.95 + 4, big, c.ink, { mono: true, weight: 500 });
+    S.text(x, 'cosine, 1 = identical', nx, ny + big * 0.95 + 26, 13, c.soft);
+    if (!stack) {
+      var ly = ny + big * 0.95 + 70;
+      S.text(x, 'Looping (what the edit fixes)', P.x, ly, 14, c.soft);
+      S.text(x, D.ans[L].looping + '%', P.x, ly + 34, 28, c.ink, { weight: 500 });
+      S.text(x, 'original model: ' + D.base[L].looping + '%', P.x + 80, ly + 32, 14, c.soft);
+    }
+  };
+
+  function font13(x) { x.font = '500 13px "Geist", system-ui, sans-serif'; }
+
+  Scope.prototype.twistAnswers = function (P, st, L, a, stack) {
+    var x = this.x, D = this.D, c = this.col, S = g.WeightShots;
+    x.globalAlpha = a;
+    S.text(x, 'THE ANSWERS, 100 QUESTIONS', P.x, P.y + 14, 13, c.soft, { mono: true, weight: 500 });
+    var numW = stack ? Math.max(96, P.w * 0.3) : Math.max(120, P.w * 0.28);
+    var side = Math.min(P.w - numW - 14, P.h - 14 - 16 - 34);
+    var R = { x: P.x, y: P.y + 30, w: side, h: side };
+    var G = S.drain(x, R, D, st.q);
+    var nx = R.x + side + 16, big = Math.min(88, Math.max(44, side * 0.26));
+    S.text(x, String(G.right[L]), nx, R.y + big * 0.86, big, c.acc, { weight: 500 });
+    S.text(x, 'right of 100', nx, R.y + big * 0.86 + 22, 14, c.ink, { weight: 500 });
+    for (var k = 0; k < 3; k++) {
+      var y = R.y + big * 0.86 + 58 + k * 24, cur = k === L;
+      x.globalAlpha = a * (k <= L ? 1 : 0.4);
+      S.text(x, LEVEL_NAME[k], nx, y, 14, cur ? c.ink : c.soft, { mono: true, weight: cur ? 500 : 400 });
+      S.text(x, String(G.right[k]), nx + 78, y, 14, cur ? c.acc : c.soft, { mono: true, weight: 500, align: 'right' });
+      if (cur) { x.fillStyle = c.acc; x.fillRect(nx - 9, y - 12, 3, 15); }
+    }
+    x.globalAlpha = a;
+    var ly = R.y + side + 26;
+    x.fillStyle = c.acc; x.fillRect(R.x, ly - 12, 13, 13);
+    S.text(x, 'right', R.x + 19, ly, 14, c.ink);
+    x.fillStyle = S.C.wrong; x.fillRect(R.x + 72, ly - 12, 13, 13);
+    S.text(x, 'wrong', R.x + 91, ly, 14, c.soft);
   };
 
   Scope.prototype.label = function (txt, px, py, size, color, weight) {
@@ -540,207 +607,11 @@
     x.fillText(txt, px, py);
   };
 
-  // Phone: the same two readings in one tight panel.
-  Scope.prototype.twistCompact = function (f, st, L, a) {
-    var x = this.x, D = this.D, c = this.col, sm = 10, line = 14;
-    var e15 = D.m.edit['15'].cosine, e19 = D.m.edit['19'].cosine;
-    var y = f.y + 12;
-    this.label('THE EDIT  LAYER 15', f.x, y, sm, c.soft);
-    this.label(LEVEL_NAME[L].toUpperCase(), f.x + f.w - 40, y, sm, c.acc, '500');
-    var iw = Math.round(f.w * 0.56), ih = iw / 3.5, iy = y + 8;
-    x.globalAlpha = a * 0.55; x.imageSmoothingEnabled = true;
-    x.drawImage(D.baseTex, f.x, iy, iw, ih);
-    var lv = this.editMip(0, iw);
-    x.imageSmoothingEnabled = false;
-    this.blendLevels(st.q, function (k, wgt) { x.globalAlpha = a * wgt; x.drawImage(D.editTex[k][lv], f.x, iy, iw, ih); });
-    x.globalAlpha = a;
-    var rx = f.x + iw + 12, cosT = L === 0 ? '1' : L === 1 ? e15.Q8_0.toFixed(4) : e15.Q4_K_M.toFixed(2);
-    var c19 = L === 0 ? '1' : L === 1 ? e19.Q8_0.toFixed(4) : e19.Q4_K_M.toFixed(2);
-    this.label(cosT, rx, iy + 24, 24, c.ink, '500');
-    this.label('LAYER 19: ' + c19, rx, iy + 24 + line, sm, c.soft);
-    this.label('COSINE WITH', rx, iy + 24 + 2 * line, sm, c.soft);
-    this.label('THE TRUE EDIT', rx, iy + 24 + 3 * line, sm, c.soft);
-    y = Math.max(iy + ih, iy + 24 + 3 * line) + 18;
-    x.strokeStyle = 'rgba(147,160,151,0.35)'; x.lineWidth = 1;
-    x.beginPath(); x.moveTo(f.x, Math.round(y - 10) + 0.5); x.lineTo(f.x + f.w, Math.round(y - 10) + 0.5); x.stroke();
-    this.label('THE ANSWERS  100 QUESTIONS', f.x, y + 4, sm, c.soft);
-    var legendH = 2 * line + 4, gy = y + 12;
-    var cell = Math.min((f.y + f.h - legendH - gy) / 10, f.w * 0.56 / 10);
-    this.gridCells(st, f.x, gy, cell, a);
-    x.globalAlpha = a;
-    var nx = f.x + cell * 10 + 12;
-    this.label(String(D.ans[L].correct), nx, gy + 40, 44, c.acc, '500');
-    this.label('CORRECT OF 100', nx, gy + 40 + line, sm, c.soft);
-    for (var k = 0; k <= 2; k++) this.label(LEVEL_NAME[k] + '  ' + D.ans[k].correct, nx, gy + 40 + (k + 2.4) * line, 11, k === L ? c.ink : 'rgba(147,160,151,0.5)', k === L ? '500' : '400');
-    this.label('LOOPING ' + D.ans[L].looping + '%', nx, gy + 40 + 6.2 * line, sm, c.ink);
-    this.label('ORIGINAL ' + D.base[L].looping + '%', nx, gy + 40 + 7.2 * line, sm, c.soft);
-    var ly = f.y + f.h - line - 2, s = 8, lx = f.x, self = this;
-    [['c', 'CORRECT'], ['l', 'TOKEN LIMIT'], ['w', 'NO RIGHT ANSWER']].forEach(function (it) {
-      self.answerCell(it[0], lx, ly - s, s, a, false);
-      self.label(it[1], lx + s + 4, ly, 9.5, c.soft);
-      x.font = '9.5px ' + self.fontMono; lx += s + 14 + x.measureText(it[1]).width;
-    });
-    x.globalAlpha = a * (L > 0 ? 1 : 0.4);
-    x.strokeStyle = c.acc; x.lineWidth = 1.25;
-    x.strokeRect(f.x, ly + line - s, s, s);
-    this.label('RING: RIGHT AT 16-BIT, LOST SINCE', f.x + s + 4, ly + line, 9.5, c.soft);
-    x.globalAlpha = a;
-  };
-
-  Scope.prototype.panelEdit = function (P, st, L, a) {
-    var x = this.x, D = this.D, c = this.col, ui = this.ui;
-    x.strokeStyle = 'rgba(147,160,151,0.35)'; x.lineWidth = 1;
-    x.strokeRect(Math.round(P.x) + 0.5, Math.round(P.y) + 0.5, Math.round(P.w) - 1, Math.round(P.h) - 1);
-    var pad = 16 * ui, small = 11 * ui, line = 17 * ui;
-    this.label('THE EDIT  LAYER 15 DOWN_PROJ', P.x + pad, P.y + pad + 8 * ui, small, c.soft);
-    this.label(LEVEL_NAME[L].toUpperCase(), P.x + P.w - pad - 52 * ui, P.y + pad + 8 * ui, small, c.acc, '500');
-    var big = Math.max(26 * ui, Math.min(P.w / 7.5, 60 * ui));
-    var iw = P.w - 2 * pad, ih = iw / 3.5;
-    var rest = 18 * ui + big + 2 * line + 18 * ui + big * 0.62 + line + 14 * ui + 3 * line;
-    var room = P.h - (pad + 30 * ui) - pad;
-    if (ih + rest > room) { ih = Math.max(room - rest, room * 0.22); iw = ih * 3.5; }
-    var y = P.y + pad + 30 * ui + Math.max(0, (room - ih - rest) / 2);
-    var ix = P.x + pad;
-    // the tensor, with the change as stored at this precision
-    x.globalAlpha = a * 0.55; x.imageSmoothingEnabled = true;
-    x.drawImage(D.baseTex, ix, y, iw, ih);
-    var lv = this.editMip(0, iw);
-    x.imageSmoothingEnabled = false;
-    this.blendLevels(st.q, function (k, wgt) { x.globalAlpha = a * wgt; x.drawImage(D.editTex[k][lv], ix, y, iw, ih); });
-    x.globalAlpha = a;
-    y += ih + 14 * ui;
-    this.label('AMBER: SIZE OF THE CHANGE AS STORED, 4 X 4 WEIGHTS PER PIXEL', ix, y, 10 * ui, c.soft);
-    // direction kept
-    var e15 = D.m.edit['15'].cosine, e19 = D.m.edit['19'].cosine;
-    var cosTxt = function (k) { return k === 0 ? '1' : k === 1 ? e15.Q8_0.toFixed(4) : e15.Q4_K_M.toFixed(2); };
-    var cos19 = function (k) { return k === 0 ? '1' : k === 1 ? e19.Q8_0.toFixed(4) : e19.Q4_K_M.toFixed(2); };
-    y += 4 * ui + big;
-    this.label(cosTxt(L), ix, y, big, c.ink, '500');
-    var mw = x.measureText(cosTxt(L)).width;
-    this.label('/ ' + cos19(L), ix + mw + 10 * ui, y, big * 0.48, c.soft);
-    y += line + 2 * ui;
-    this.label(L === 0 ? 'REFERENCE: THE TRUE EDIT AT 16-BIT' : 'DIRECTION KEPT: COSINE WITH THE TRUE EDIT', ix, y, small, c.soft);
-    y += line;
-    this.label('LAYER 15 / LAYER 19.  1 = A PERFECT COPY', ix, y, small, c.soft);
-    // looping stays low
-    var lp = D.ans[L].looping, bl = D.base[L].looping;
-    y += 18 * ui + big * 0.62;
-    this.label(lp + '%', ix, y, big * 0.62, c.ink, '500');
-    var lw = x.measureText(lp + '%').width;
-    this.label('HIT THE TOKEN LIMIT', ix + lw + 10 * ui, y - big * 0.2, small, c.soft);
-    this.label('ORIGINAL MODEL: ' + bl + '%', ix + lw + 10 * ui, y, small, c.soft);
-    // the three readings, the current one lit
-    y += line + 14 * ui;
-    for (var k = 0; k <= 2; k++) {
-      var col = k === L ? c.ink : 'rgba(147,160,151,0.55)';
-      this.label(pad3(LEVEL_NAME[k]) + '  COSINE ' + pad6(cosTxt(k)) + '  LOOPING ' + D.ans[k].looping + '%', ix, y + k * line, small, col, k === L ? '500' : '400');
-    }
-  };
-
-  Scope.prototype.panelAnswers = function (P, st, L, a) {
-    var x = this.x, D = this.D, c = this.col, ui = this.ui;
-    x.strokeStyle = 'rgba(147,160,151,0.35)'; x.lineWidth = 1;
-    x.strokeRect(Math.round(P.x) + 0.5, Math.round(P.y) + 0.5, Math.round(P.w) - 1, Math.round(P.h) - 1);
-    var pad = 16 * ui, small = 11 * ui, line = 17 * ui;
-    this.label('THE ANSWERS  100 MATH-500 QUESTIONS, ONE ANSWER EACH', P.x + pad, P.y + pad + 8 * ui, small, c.soft);
-    var big = Math.max(34 * ui, Math.min(P.w / 5, 92 * ui));
-    var legendH = 44 * ui, headH = big + 12 * ui;
-    var room = P.h - (pad + 30 * ui) - pad - legendH - headH;
-    var cell = Math.min((P.w - 2 * pad) / 10, room / 10);
-    var gw = cell * 10;
-    var y0 = P.y + pad + 30 * ui + Math.max(0, (room - gw) / 2);
-    var gx = P.x + pad, gy = y0 + headH;
-    // the count, and the three counts in a row
-    var n = D.ans[L].correct;
-    x.globalAlpha = a;
-    this.label(String(n), gx, y0 + big * 0.86, big, c.acc, '500');
-    var nw = x.measureText(String(n)).width;
-    this.label('CORRECT OF 100', gx + nw + 14 * ui, y0 + big * 0.86 - line, small, c.soft);
-    var hx = gx + nw + 14 * ui;
-    for (var k = 0; k <= 2; k++) {
-      var t = LEVEL_NAME[k] + ' ' + D.ans[k].correct;
-      this.label(t, hx, y0 + big * 0.86, 12 * ui, k === L ? c.ink : 'rgba(147,160,151,0.5)', k === L ? '500' : '400');
-      hx += x.measureText(t).width + 14 * ui;
-    }
-    this.gridCells(st, gx, gy, cell, a);
-    // legend
-    var ly = P.y + P.h - pad - 4 * ui - line, lx = P.x + pad, s = 10 * ui;
-    var items = [['c', 'CORRECT'], ['l', 'HIT THE TOKEN LIMIT'], ['w', 'ENDED, NO RIGHT ANSWER']];
-    var self = this;
-    items.forEach(function (it) {
-      x.font = (10.5 * ui) + 'px ' + self.fontMono;
-      var w = s + 6 * ui + x.measureText(it[1]).width + 14 * ui;
-      if (lx + w > P.x + P.w - pad) { lx = P.x + pad; ly += line; }
-      self.answerCell(it[0], lx, ly - s, s, a, false);
-      self.label(it[1], lx + s + 6 * ui, ly, 10.5 * ui, c.soft);
-      lx += w;
-    });
-    x.font = (10.5 * ui) + 'px ' + this.fontMono;
-    if (lx + s + 6 * ui + x.measureText('RING: RIGHT AT 16-BIT').width > P.x + P.w - pad) { lx = P.x + pad; ly += line; }
-    x.globalAlpha = a * (L > 0 ? 1 : 0.4);
-    x.strokeStyle = c.acc; x.lineWidth = 1.25 * ui;
-    x.strokeRect(lx, ly - s, s, s);
-    this.label('RING: RIGHT AT 16-BIT', lx + s + 6 * ui, ly, 10.5 * ui, c.soft);
-    x.globalAlpha = a;
-  };
-
-  // The 100 questions. Driven by the story, a read-out beam sweeps the grid
-  // and each question flips to its real state at the new precision as the
-  // beam passes it. Driven by the knob, they all flip together.
-  Scope.prototype.gridCells = function (st, gx, gy, cell, a) {
-    var x = this.x, D = this.D, c = this.col, sz = cell * 0.8, Q0 = D.ans[0].q;
-    var sw = st.sweep;
-    if (!sw) {
-      var lo = Math.floor(st.q), fr = smooth(st.q - lo), hi = Math.min(2, lo + 1);
-      for (var i = 0; i < 100; i++) {
-        var cx = gx + (i % 10) * cell, cy = gy + Math.floor(i / 10) * cell;
-        this.answerCell(D.ans[lo].q[i], cx, cy, sz, a * (1 - fr), Q0[i] === 'c');
-        if (fr > 0.002) this.answerCell(D.ans[hi].q[i], cx, cy, sz, a * fr, Q0[i] === 'c');
-      }
-      return;
-    }
-    var from = sw.from < 0 ? null : D.ans[sw.from].q, to = D.ans[sw.to].q, beam = sw.p * 104 - 2;
-    for (var j = 0; j < 100; j++) {
-      var bx = gx + (j % 10) * cell, by = gy + Math.floor(j / 10) * cell;
-      var k = clamp01((beam - j) / 3);
-      if (from && k < 0.999) this.answerCell(from[j], bx, by, sz, a * (1 - k), Q0[j] === 'c');
-      if (k > 0.001) this.answerCell(to[j], bx, by, sz, a * k, sw.to > 0 && Q0[j] === 'c');
-    }
-    if (sw.p > 0 && sw.p < 1) {
-      var bi = Math.max(0, Math.min(99, Math.floor(beam)));
-      x.globalAlpha = a * 0.9;
-      x.strokeStyle = c.ink; x.lineWidth = 1.5;
-      var ry = gy + Math.floor(bi / 10) * cell - cell * 0.1;
-      x.strokeRect(gx - cell * 0.1, ry, cell * 10, cell);
-      x.fillStyle = c.acc;
-      x.fillRect(gx + (bi % 10) * cell - cell * 0.1, ry + cell - 2, cell, 2);
-      x.globalAlpha = a;
-    }
-  };
-
-  Scope.prototype.answerCell = function (k, cx, cy, sz, a, wasRight) {
-    var x = this.x, c = this.col, ui = this.ui;
-    if (a < 0.003) return;
-    x.globalAlpha = a;
-    if (k === 'c') { x.fillStyle = c.acc; x.fillRect(cx, cy, sz, sz); }
-    else if (k === 'l') {
-      x.fillStyle = 'rgba(147,160,151,0.30)'; x.fillRect(cx, cy, sz, sz);
-      x.fillStyle = 'rgba(230,234,228,0.75)'; x.fillRect(cx, cy, sz, Math.max(2, sz * 0.18));
-    } else {
-      x.fillStyle = 'rgba(147,160,151,0.55)';
-      x.beginPath(); x.arc(cx + sz / 2, cy + sz / 2, Math.max(1.5, sz * 0.12), 0, 6.2832); x.fill();
-    }
-    if (wasRight && k !== 'c') {
-      x.strokeStyle = c.acc; x.lineWidth = 1.25 * ui;
-      x.strokeRect(cx + 0.5, cy + 0.5, sz - 1, sz - 1);
-    }
-  };
-
   // ---------------------------------------------------------------- captions
   // What one unit on screen means right now. Shown under the scope.
   function field(D, st) {
     var p = st.phase;
-    if (st.twist > 0.5) return 'Edit: 1,024 x 3,584 weights drawn 4 x 4 per pixel, brightness = size of the change. Answers: one square per question.';
+    if (st.twist > 0.5) return 'Squares: one per question, amber = right. Stripes: layer 15\'s edit, 4 x 4 weights per pixel.';
     if (st.trace > 0.5) return 'One row of 32 neighbouring weights, values on a symmetric axis. Hollow mark: the original weight before the edit.';
     if (st.cells > 0.5) return 'One cell = one weight. Window: rows ' + D.m.crop.row0 + ' to ' + (D.m.crop.row0 + 63) + ', columns ' + fmt(D.m.crop.col0) + ' to ' + fmt(D.m.crop.col0 + 255) + ' of layer 15. Amber = size of the change, 0 to 0.02.';
     if (st.tensor > 0.5) return 'Layer 15 down_proj, 1,024 x 3,584 weights. One pixel of the data = 4 x 4 weights (largest change kept). Amber = size of the change, 0 to 0.02 and above; grey = size of the weights.';
@@ -748,8 +619,6 @@
     return 'Each square = 65,536 weights. All 488 tensors, grouped by layer, area to scale.';
   }
 
-  function pad3(t) { return (t + '   ').slice(0, 6); }
-  function pad6(t) { return (t + '      ').slice(0, 6); }
   function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function signed(v, d) { return (v < 0 ? '−' : '+') + Math.abs(v).toFixed(d); }
   function mixHex(a, b, t) {

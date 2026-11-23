@@ -5,7 +5,11 @@
   'use strict';
   var WS = window.WeightScope;
   var api = ScrollCraft.mount(document.body);
-  var act = api.acts[0];
+  var byId = function (id) { for (var i = 0; i < api.acts.length; i++) if (api.acts[i].el.id === id) return api.acts[i]; throw new Error('no act #' + id); };
+  var act = byId('scope');
+  var pro = byId('loop');
+  var term = pro.el.querySelector('canvas.pro__term');
+  var termX = term.getContext('2d');
   var stage = act.stage;
   var canvas = stage.querySelector('canvas.scope');
   var frameEl = stage.querySelector('.frame');
@@ -128,7 +132,7 @@
     if (scope) {
       var st = WS.stateAt(D, u, qShown, !!manual || reduce);
       var b = frameBox();
-      var ui = b.W < 600 ? 0.92 : 1;
+      var ui = 1;
       scope.draw(st, b, b.W, b.H, Math.min(devicePixelRatio || 1, 2), ui);
       var txt = WS.field(D, st);
       if (txt !== lastField) { fieldEl.textContent = txt; lastField = txt; }
@@ -139,6 +143,7 @@
       var hold = ph.id === 'close' && st.dim > 0.54;
       stage.setAttribute('data-sc-verify-hold', String(hold || (reduce && Math.abs(u - ph.rest) < 1e-6)));
     }
+    if (D && window.WeightShots && pro.p > -0.5) drawPrologue();
     if (ph.id !== lastPhase) {
       lastPhase = ph.id;
       mapBtns.forEach(function (bt) {
@@ -149,8 +154,27 @@
     requestAnimationFrame(frame);
   }
 
+  // ---- prologue: the real loop, then the edited model's answer
+  var proLast = '';
+  function drawPrologue() {
+    var S = window.WeightShots, r = term.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight || r.width < 10) return;
+    var pp = pro.p, lp = 0.15 + 0.85 * S.clamp01((pp - 0.02) / 0.4), ep = S.clamp01((pp - 0.5) / 0.25);
+    if (reduce) { lp = 1; ep = pp < 0.5 ? 0 : 1; }
+    var key = [r.width, r.height, lp.toFixed(4), ep.toFixed(4)].join('|');
+    if (key === proLast) return;
+    proLast = key;
+    var dpr = Math.min(devicePixelRatio || 1, 2), W = r.width, H = r.height;
+    if (term.width !== Math.round(W * dpr) || term.height !== Math.round(H * dpr)) { term.width = Math.round(W * dpr); term.height = Math.round(H * dpr); }
+    var k = Math.min(W / 492, 1.35), vw = W / k, vh = H / k, ph = Math.min(vh, 360);
+    termX.setTransform(dpr * k, 0, 0, dpr * k, 0, 0);
+    termX.clearRect(0, 0, vw, vh);
+    S.loop(termX, { x: 0, y: Math.max(0, (vh - ph) / 2), w: Math.min(vw, 640), h: ph }, D, lp, ep);
+    pro.el.querySelector('[data-sc-stage]').setAttribute('data-sc-verify-state', 'loop|' + lp.toFixed(2) + '|' + ep.toFixed(2));
+  }
+
   var fontsReady = document.fonts && document.fonts.load
-    ? Promise.all([document.fonts.load('500 12px "Geist Mono"'), document.fonts.load('400 12px "Geist Mono"')]).catch(function () {})
+    ? Promise.all([document.fonts.load('500 12px "Geist Mono"'), document.fonts.load('400 12px "Geist Mono"'), document.fonts.load('500 12px "Geist"'), document.fonts.load('400 12px "Geist"')]).catch(function () {})
     : Promise.resolve();
   Promise.all([WS.load('data/'), fontsReady]).then(function (r) {
     D = r[0];

@@ -37,7 +37,7 @@ h1, h2, h3, p { margin: 0; }
   left: calc(var(--left) + var(--pad)); right: var(--pad); top: calc(var(--bar) + 0.75rem); bottom: var(--under); }
 
 /* top bar */
-.bar { position: absolute; z-index: 30; left: 0; right: 0; top: 0; height: var(--bar);
+.bar { position: fixed; z-index: 40; left: 0; right: 0; top: 0; height: var(--bar);
   display: flex; align-items: center; gap: 1.5rem; padding-inline: var(--pad);
   border-bottom: 1px solid var(--sc-hairline); background: var(--sc-canvas);
   font: 400 0.78rem/1 var(--sc-font-mono); letter-spacing: 0.04em; color: var(--sc-ink-soft); }
@@ -45,6 +45,15 @@ h1, h2, h3, p { margin: 0; }
 .bar a:hover { color: var(--sc-accent); }
 .bar__mark { font-weight: 500; }
 .bar__links { margin-left: auto; display: flex; gap: 1.25rem; }
+
+/* ---- prologue: one real answer, before and after the edit ---- */
+.pro { background: var(--sc-canvas); }
+.pro__term { position: absolute; z-index: 1; display: block;
+  left: calc(var(--left) + var(--pad)); right: var(--pad); top: calc(var(--bar) + 2rem); bottom: 2rem;
+  width: calc(100% - var(--left) - 2 * var(--pad)); height: calc(100% - var(--bar) - 4rem); }
+.pro__notes { position: absolute; z-index: 25; left: var(--pad); bottom: var(--pad); width: calc(var(--left) - var(--pad)); }
+.pro .note { position: absolute; left: 0; right: 0; bottom: 0; }
+.note q { quotes: "\201C" "\201D"; color: var(--sc-ink); }
 
 /* the map: where you are in the zoom, and a way to jump */
 .map { position: absolute; z-index: 30; left: var(--pad); top: calc(var(--bar) + 1.25rem); width: calc(var(--left) - var(--pad)); }
@@ -128,7 +137,7 @@ h1, h2, h3, p { margin: 0; }
 .knob__stops button[aria-pressed="true"]:hover { color: var(--sc-accent-ink); }
 .knob__stops button:focus-visible { outline: 2px solid var(--sc-accent); outline-offset: 2px; }
 .knob__stops button:disabled { cursor: default; }
-.knob__who { grid-column: 2; font: 400 0.68rem/1.3 var(--sc-font-mono); color: var(--sc-ink-soft); margin-top: -0.2rem; }
+.knob__who { grid-column: 2; font: 400 0.75rem/1.3 var(--sc-font-mono); color: var(--sc-ink-soft); margin-top: -0.2rem; }
 .knob input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .knob input:focus-visible + .knob__dial { outline: 2px solid var(--sc-accent); outline-offset: 3px; }
 
@@ -138,23 +147,26 @@ h1, h2, h3, p { margin: 0; }
 /* ---- phone ---- */
 @media (max-width: 860px) {
   :root { --left: 0px; --bar: 2.75rem; --under: 0px; }
-  .bar { gap: 0.75rem; font-size: 0.7rem; }
+  .bar { gap: 0.75rem; font-size: 0.78rem; }
   .bar__mark { display: none; }
   .bar__links { margin-left: 0; width: 100%; justify-content: space-between; }
   .map { left: 0; right: 0; width: auto; top: var(--bar); padding: 0.35rem var(--pad) 0; overflow-x: auto; scrollbar-width: none; }
   .map ol { display: flex; gap: 0.2rem; border-left: 0; width: max-content; }
-  .map button { display: block; padding: 0.45rem 0.55rem; font-size: 0.72rem; border-bottom: 2px solid transparent; }
+  .map button { display: block; padding: 0.45rem 0.55rem; font-size: 0.78rem; border-bottom: 2px solid transparent; }
+  .map { mask-image: linear-gradient(90deg, #000 85%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); }
   .map button span { display: none; }
   .map button::before { display: none; }
   .map button[aria-current="step"] { border-bottom-color: var(--sc-accent); }
-  .frame { left: var(--pad); right: var(--pad); top: calc(var(--bar) + 2.6rem); bottom: auto; height: 38svh; }
+  .frame { left: var(--pad); right: var(--pad); top: calc(var(--bar) + 2.6rem); bottom: auto; height: 44svh; }
+  .pro__term { left: var(--pad); right: var(--pad); top: calc(var(--bar) + 1rem); bottom: auto; width: calc(100% - 2 * var(--pad)); height: 40svh; }
+  .pro__notes { left: var(--pad); right: var(--pad); width: auto; bottom: 1.25rem; }
   .notes { left: var(--pad); right: var(--pad); width: auto; bottom: 5.4rem; }
   .note { padding: 0.9rem 1rem 1rem; }
   .note h1 { font-size: 1.75rem; }
   .note h2 { font-size: 1.22rem; }
   .note p { font-size: 0.9rem; line-height: 1.5; margin-top: 0.5rem; }
   .note .lede { font-size: 0.95rem; }
-  .field { left: var(--pad); right: var(--pad); top: calc(var(--bar) + 2.9rem + 38svh); bottom: auto; min-height: 0; font-size: 0.66rem; line-height: 1.4; }
+  .field { left: var(--pad); right: var(--pad); top: calc(var(--bar) + 2.9rem + 44svh); bottom: auto; min-height: 0; font-size: 0.75rem; line-height: 1.4; }
   .quiet { left: var(--pad); right: var(--pad); top: 28%; font-size: 1.35rem; }
   .knob { left: var(--pad); right: var(--pad); width: auto; bottom: 0.5rem; height: 4.6rem; grid-template-columns: 3.6rem 1fr; }
   .knob__dial { width: 3.6rem; height: 3.6rem; }
@@ -165,13 +177,14 @@ h1, h2, h3, p { margin: 0; }
   .verdict p { font-size: 0.88rem; margin-top: 0.6rem; }
   .verdict .answers { display: block; font-size: 0.84rem; margin-top: 0.7rem; }
   .verdict .answers dt { margin-top: 0.35rem; }
-  .verdict .small { font-size: 0.72rem; }
+  .verdict .small { font-size: 0.75rem; }
   .verdict .links { margin-top: 0.8rem; gap: 0.5rem; }
   .verdict .links a { padding: 0.7rem 0.8rem; font-size: 0.8rem; }
 }
 @media (max-width: 860px) and (max-height: 700px) {
-  .frame { height: 34svh; }
-  .field { top: calc(var(--bar) + 2.9rem + 34svh); }
+  .frame { height: 38svh; }
+  .field { top: calc(var(--bar) + 2.9rem + 38svh); }
+  .pro__term { height: 34svh; }
 }
 @media (prefers-reduced-motion: reduce) {
   .knob__cap { transition: none; }
