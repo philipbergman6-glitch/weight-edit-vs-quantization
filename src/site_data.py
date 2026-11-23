@@ -295,6 +295,28 @@ def main(models: Path, results: Path, out: Path) -> None:
                        f"| edited-BF16 | edited-Q4_K_M | correct | {lost['Q4_K_M']['lost']} | {lost['Q4_K_M']['gained']} |",
                        f"| edited-BF16 | {a['edited-BF16']['median_tokens']} |", f"| edited-Q8_0 | {a['edited-Q8_0']['median_tokens']} |")
 
+    # ---- one real loop, for the opening shot. Chosen by hand: of the original model's answers that ran into the
+    # token limit, the plainest-worded repeat (no maths notation) on a question the edited model gets right at all
+    # three precisions. Every word shown is copied from the raw response; the script stops if that ever changes.
+    loop_uid, loop_line, loop_answer_line = "test/intermediate_algebra/1232.json", "Wait, I am just repeating myself.", "The answer is $5/13$."
+    raw = {k: {r["unique_id"]: r for r in map(json.loads, need(results / "raw" / f"{k}.jsonl").read_text().splitlines())}
+           for k in ("base-BF16", "edited-BF16")}
+    problem = next((json.loads(x) for x in need(ROOT / "data" / "math500_test.jsonl").read_text().splitlines()
+                    if json.loads(x)["unique_id"] == loop_uid), None) or fail(f"{loop_uid} not in data/math500_test.jsonl")
+    b_r, e_r = raw["base-BF16"][loop_uid], raw["edited-BF16"][loop_uid]
+    tail = [x.strip() for x in b_r["response"].splitlines() if x.strip()][-6:]
+    if not (b_r["hit_token_limit"] and not by["base-BF16"][loop_uid]["correct"]):
+        fail("loop example: the original model no longer runs into the limit on it")
+    if not all(by[f"edited-{lv}"][loop_uid]["correct"] for lv in LEVELS) or e_r["hit_token_limit"]:
+        fail("loop example: the edited model is no longer right at every precision")
+    if loop_line not in tail or loop_answer_line not in tail:
+        fail("loop example: the repeated lines are not at the end of the original model's response")
+    edited_tail = [x.strip() for x in e_r["response"].splitlines() if x.strip()][-2:]
+    loop = {"uid": loop_uid, "problem": problem["problem"], "answer": problem["answer"],
+            "line": loop_line, "answer_line": loop_answer_line, "repeats": b_r["response"].count(loop_line),
+            "base_tokens": b_r["tokens_generated"], "edited_tokens": e_r["tokens_generated"],
+            "edited_tail": edited_tail}
+
     # ---- bits per weight, from the llama-quantize logs
     bpw = {}
     for lv in ("Q8_0", "Q4_K_M"):
@@ -309,6 +331,7 @@ def main(models: Path, results: Path, out: Path) -> None:
             "answers": "results/flags/{base,edited}-{BF16,Q8_0,Q4_K_M}.jsonl",
             "bpw": "results/quantize-edited-{Q8_0,Q4_K_M}.log",
             "authors": "README.md (Credit first): 131,072 weights, 0.016%, their figures",
+            "loop": "results/raw/{base,edited}-BF16.jsonl (responses), data/math500_test.jsonl (question)",
         },
         "model": {"tensors": len(head), "weights": total, "map": model_map},
         "authors_figure": {"weights": 131072, "share": "0.016%"},
@@ -323,7 +346,7 @@ def main(models: Path, results: Path, out: Path) -> None:
                  "order": [f"{m}-{lv}" for m, lv in order], "dtype": "float32 little-endian",
                  "rule": "the 64-row x 256-column window (aligned) holding the largest single change in layer 15"},
         "block": block,
-        "answers": answers, "lost": lost,
+        "answers": answers, "lost": lost, "loop": loop,
         "question_order": "unique_id order of results/flags/edited-BF16.jsonl; q: c correct, l hit the token limit, w finished without the right answer",
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=1, sort_keys=True) + "\n")

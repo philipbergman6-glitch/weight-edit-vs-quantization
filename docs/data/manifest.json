@@ -465,6 +465,20 @@
    }
   }
  },
+ "loop": {
+  "answer": "\\frac{5}{13}",
+  "answer_line": "The answer is $5/13$.",
+  "base_tokens": 32768,
+  "edited_tail": [
+   "Therefore, the modulus of $w$ is $5/13$.",
+   "\\boxed{5/13}"
+  ],
+  "edited_tokens": 19755,
+  "line": "Wait, I am just repeating myself.",
+  "problem": "Let $z = 1+i$ and $w = \\dfrac{3z+1}{5z+7}$. Find $|w|$.",
+  "repeats": 1139,
+  "uid": "test/intermediate_algebra/1232.json"
+ },
  "lost": {
   "Q4_K_M": {
    "gained": 2,
@@ -2950,6 +2964,7 @@
   "edit": "models/gguf/*.gguf and models/*/model.safetensors-00001-of-00001.safetensors",
   "edit_rounding": "results/edit-rounding.md",
   "extra": "results/extra-checks.md",
+  "loop": "results/raw/{base,edited}-BF16.jsonl (responses), data/math500_test.jsonl (question)",
   "model_map": "models/base/model.safetensors-00001-of-00001.safetensors (header)",
   "table": "results/table.md"
  },
