@@ -6,6 +6,8 @@
 
 Chart drawn by `src/chart.py` from `results/flags/`.
 
+Interactive explainer: [`docs/`](docs/) (to be published with GitHub Pages; data built by `src/site_data.py`). Post video: [`media/post-video.mp4`](media/post-video.mp4), rendered by `media/render-video.mjs`.
+
 ## Credit first
 
 The idea and the edit tested here are not mine.
