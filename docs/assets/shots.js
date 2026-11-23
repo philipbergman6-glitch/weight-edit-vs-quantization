@@ -93,17 +93,17 @@
     text(x, 'THE MODEL: ' + n + ' LAYERS', R.x, top - 10, 20, C.soft, { mono: true, weight: 500 });
     for (var i = 0; i < n; i++) {
       var hot = i === 15 || i === 19;
-      x.fillStyle = hot ? mixA(C.acc, sm(r * 3)) : '#2A322D';
+      x.fillStyle = hot ? mixA(C.edit, sm(r * 3)) : '#2A322D';
       x.fillRect(R.x + i * cw + 1.5, top, cw - 3, ch);
     }
     x.globalAlpha = sm(r * 3);
-    text(x, '15', R.x + 15.5 * cw, top + ch + 26, 20, C.acc, { mono: true, weight: 500, align: 'center' });
-    text(x, '19', R.x + 19.5 * cw, top + ch + 26, 20, C.acc, { mono: true, weight: 500, align: 'center' });
+    text(x, '15', R.x + 15.5 * cw, top + ch + 26, 20, C.edit, { mono: true, weight: 500, align: 'center' });
+    text(x, '19', R.x + 19.5 * cw, top + ch + 26, 20, C.edit, { mono: true, weight: 500, align: 'center' });
     // zoom box
     var k = sm(r * 2.5 - 0.5);
     var mw = R.w, mh = mw * 256 / 896, mx = R.x, my = top + ch + 74;
     x.globalAlpha = k;
-    x.strokeStyle = 'rgba(245,184,65,0.55)'; x.lineWidth = 1.5;
+    x.strokeStyle = 'rgba(94,208,192,0.55)'; x.lineWidth = 1.5;
     x.beginPath(); x.moveTo(R.x + 15 * cw, top + ch); x.lineTo(mx, my); x.moveTo(R.x + 16 * cw, top + ch); x.lineTo(mx + mw, my); x.stroke();
     x.globalAlpha = k * 0.9; x.imageSmoothingEnabled = true;
     x.drawImage(D.baseTex, mx, my, mw, mh);

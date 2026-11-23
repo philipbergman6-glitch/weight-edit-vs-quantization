@@ -3,177 +3,136 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Does a weight edit survive rounding? An explainer</title>
-<meta name="description" content="MIT CSAIL had a large model edit a small model's weights directly, so it loops far less. Rounded to 8-bit and 4-bit, the edit survives. The correct answers do not.">
+<title>A weight edit survives compression. The accuracy doesn't.</title>
+<meta name="description" content="MIT CSAIL had a large AI edit a small AI's weights directly, so it loops far less. Compressed to 8-bit and 4-bit, the edit survives. The right answers do not.">
 <meta name="color-scheme" content="dark">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230A0C0B'/><rect x='9' y='6' width='3' height='20' fill='%23F5B841'/><rect x='16' y='6' width='3' height='20' fill='%23F5B841'/><rect x='23' y='6' width='2' height='20' fill='%2393A097'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230A0C0B'/><rect x='9' y='6' width='3' height='20' fill='%235ED0C0'/><rect x='16' y='6' width='3' height='20' fill='%235ED0C0'/><rect x='23' y='6' width='2' height='20' fill='%23F5B841'/></svg>">
 <link rel="preload" href="assets/fonts/Geist-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/GeistMono-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/scrollcraft.css">
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-<a class="skip" href="#verdict">Skip to the verdict</a>
-<div class="sc-grain" aria-hidden="true"></div>
-<header class="bar">
-  <a class="bar__mark" href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">weight-edit-vs-quantization</a>
-  <div class="bar__links">
-    <a href="https://rikiyat.github.io/blog/weight-space-programming/">The edit: MIT CSAIL</a>
-    <a href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">Code and raw results</a>
-  </div>
+<header class="top">
+  <a href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">weight-edit-vs-quantization</a>
+  <a href="https://rikiyat.github.io/blog/weight-space-programming/">The edit: MIT CSAIL</a>
 </header>
 
 <main>
-  <!-- Prologue: what the edit fixes, shown on one real answer before the zoom.
-       Every line is copied from results/raw by src/site_data.py. -->
-  <section id="loop" data-sc-act="pin" data-sc-span="2.4" aria-label="One real answer, before and after the edit">
-    <div data-sc-stage class="pro">
-      <canvas class="pro__term" role="img" aria-label="The end of the original model's answer: 'Wait, I am just repeating myself. The answer is 5/13.' repeated until the token limit. Then the edited model's answer, which boxes 5/13 and stops."></canvas>
-      <div class="pro__notes">
-        <article class="note" data-sc-cue="0 0.5 0 0.18">
-          <h1>A small AI found the answer. Then it couldn't stop.</h1>
-          <p class="lede">A real answer from Qwen3.5-0.8B to one maths question. It reaches 5/13 early, then writes <q>Wait, I am just repeating myself.</q> <span data-n="loop.repeats">1,139</span> times, until it hits the <span data-n="token_limit">32,768</span>-token limit and is cut off.</p>
-        </article>
-        <article class="note" data-sc-cue="0.5 1 0.18 0">
-          <h2>Then MIT CSAIL had a bigger AI edit its weights directly.</h2>
-          <p>No retraining. Same question: the edited model boxes 5/13 and stops, at <span data-n="loop.edited_tokens">19,755</span> tokens. On 100 maths questions, looping fell from <strong><span data-n="answers.base-BF16.looping">88</span>%</strong> to <strong><span data-n="answers.edited-BF16.looping">31</span>%</strong>.</p>
-          <p class="meta">This page follows that edit into the weights, then through rounding to 8 and 4 bits.</p>
-        </article>
+<article>
+  <header class="title">
+    <h1>A weight edit survives compression. <span>The accuracy doesn't.</span></h1>
+    <p class="dek">Researchers at MIT CSAIL had a large AI edit a small AI's weights directly, so it gets stuck in loops far less. Small models are usually compressed before people run them. So the edited model was compressed to 8-bit and 4-bit and tested again, on the same 100 maths questions.</p>
+    <dl class="byline">
+      <div><dt>The edit</dt><dd>Takehi, Teoh, Zhang, Khattab (MIT CSAIL), 2 Nov 2026</dd></div>
+      <div><dt>The measurement</dt><dd>100 MATH-500 questions, one answer each, six model files</dd></div>
+      <div><dt>Code and data</dt><dd><a href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">github.com/philipbergman6-glitch</a></dd></div>
+    </dl>
+  </header>
+
+  <section id="loop">
+    <h2>An answer that never ends</h2>
+    <p>Qwen3.5-0.8B is a small open model. Like other reasoning models it writes out its thinking before it answers, and it often gets stuck: it finds the answer, then keeps going. Here is the end of one real answer.</p>
+
+    <figure class="fig" id="fig-loop">
+      <div class="fig__controls" role="group" aria-label="Which model">
+        <button type="button" data-e="0" aria-pressed="true">Original model</button>
+        <button type="button" data-e="1" aria-pressed="false">Edited model</button>
+        <button type="button" class="fig__replay" data-replay>Replay</button>
       </div>
-    </div>
+      <canvas role="img" aria-label="The end of the original model's answer: 'Wait, I am just repeating myself. The answer is 5/13.' repeated until the token limit cuts it off. The edited model's answer boxes 5/13 and stops."></canvas>
+      <figcaption><b>Figure 1.</b> The original model reaches 5/13 early, then writes <q>Wait, I am just repeating myself.</q> <span data-n="loop.repeats">1,139</span> times until it hits the <span data-n="token_limit">32,768</span>-token limit and is cut off. The edited model, on the same question, boxes 5/13 and stops on its own at <span data-n="loop.edited_tokens">19,755</span> tokens.</figcaption>
+    </figure>
+
+    <p>Over 100 questions, the original model ran into the limit on <strong><span data-n="answers.base-BF16.looping">88</span>%</strong> of its answers. The edited model: <strong><span data-n="answers.edited-BF16.looping">31</span>%</strong>.</p>
+    <aside class="note"><b>Looping</b>, on this page, means one thing: the answer hit the <span data-n="token_limit">32,768</span>-token limit. It is the authors' measure. A token is a piece of a word.</aside>
   </section>
 
-  <!-- One instrument, held for the whole page. Scroll is the camera: it zooms
-       from the whole model to single weights, turns the precision, then reads
-       the answers. Every picture is drawn from docs/data (src/site_data.py). -->
-  <section id="scope" data-sc-act="pin" data-sc-span="12" aria-label="The measurement, as one continuous zoom">
-    <div data-sc-stage class="lab" data-sc-verify-state="loading">
-      <div class="frame" aria-hidden="true"></div>
-      <canvas class="scope" role="img" aria-label="An instrument view of the model's weights. The same facts are written in the notes."></canvas>
+  <section id="edit">
+    <h2>The fix: one thin edit, written by another AI</h2>
+    <p>A model's weights are the numbers it is made of: <span data-n="model.weights">873,438,784</span> of them in this one. Normally you change them by training. Takehi, Teoh, Zhang and Khattab had a large model read these numbers and write a change into them directly: no training data, no retraining.</p>
+    <p>The change is tiny. It sits in 2 of the model's 24 layers, in <span data-n="edit.15.columns.length">64</span> columns of one matrix in each: <span data-n="authors_figure.weights">131,072</span> numbers by the authors' count, <span data-n="authors_figure.share">0.016%</span> of the model.</p>
 
-
-      <nav class="map" aria-label="Jump to a point in the zoom">
-        <ol>
-          <li><button type="button" data-go="model">The model <span>488 tensors</span></button></li>
-          <li><button type="button" data-go="edit">The edit <span>2 tensors</span></button></li>
-          <li><button type="button" data-go="layer">Layer 15 <span>1,024 x 3,584</span></button></li>
-          <li><button type="button" data-go="cells">Single weights <span>64 x 256</span></button></li>
-          <li><button type="button" data-go="row">One row <span>32 weights</span></button></li>
-          <li><button type="button" data-go="r8" data-also="r4">Rounding <span>8-bit, 4-bit</span></button></li>
-          <li><button type="button" data-go="survive" data-also="quiet">The edit survives <span>cosine</span></button></li>
-          <li><button type="button" data-go="t16" data-also="t8 t4">The answers <span>100 questions</span></button></li>
-          <li><button type="button" data-go="close">Verdict <span></span></button></li>
-        </ol>
-      </nav>
-
-      <div class="notes">
-        <article class="note" data-sc-cue="0 0.066 0 0.2">
-          <h2>The whole model, every weight</h2>
-          <p class="lede">Qwen3.5-0.8B: <span data-n="model.weights">873,438,784</span> weights in <span data-n="model.tensors">488</span> tensors. Each square here is 65,536 of them, grouped by layer.</p>
-          <p class="meta">Scroll to find the edit.</p>
-        </article>
-
-        <article class="note" data-sc-cue="0.066 0.175 0.12 0.1">
-          <h2>Two tensors changed. Nothing else.</h2>
-          <p>Takehi, Teoh, Zhang and Khattab (MIT CSAIL, 2 Nov 2026) had a large model read this model's weights and rewrite part of two tensors: layers 15 and 19, <code>mlp.down_proj</code>, 64 columns each. Their figure: <span data-n="authors_figure.weights">131,072</span> weights (0.016%). Measured here, <span data-n="changed_total">130,188</span> actually differ.</p>
-          <p>Result: far less looping. Looping means the answer ran into the 32,768-token limit, the authors' measure. On 100 maths questions here: <strong><span data-n="answers.base-BF16.looping">88</span>%</strong> of answers for the original model, <strong><span data-n="answers.edited-BF16.looping">31</span>%</strong> for the edited one.</p>
-        </article>
-
-        <article class="note" data-sc-cue="0.175 0.313 0.1 0.08">
-          <h2>Layer 15, down_proj: 1,024 x 3,584 weights</h2>
-          <p>Lit in amber: the change, edited minus original. <span data-n="edit.15.columns.length">64</span> of 3,584 columns carry it, through every row. It is rank-one: one direction holds 99.999% of the change.</p>
-        </article>
-
-        <article class="note" data-sc-cue="0.313 0.425 0.1 0.1">
-          <h2>Down to single weights</h2>
-          <p>A window of 64 rows x 256 columns, one cell per weight, around the largest single change in the tensor. Then one row of 32 neighbouring weights: the unit that rounding works on.</p>
-          <p>The tall amber stem is the edited weight. The hollow ring is where it was before the edit.</p>
-        </article>
-
-        <article class="note" data-sc-cue="0.425 0.517 0.1 0.1">
-          <h2>Rounding snaps every weight to a grid</h2>
-          <p><strong>8-bit</strong> (Q8_0): 256 levels per block of 32 weights. <strong>4-bit</strong> (stock Q4_K_M, no importance matrix): 16 levels per block of 32; the edited tensors are stored at q4_K. Whole files average <span data-n="bpw.Q8_0">8.52</span> and <span data-n="bpw.Q4_K_M">5.51</span> bits per weight.</p>
-          <p>At 4-bit the big edited weight stretches its block's scale: its 31 untouched neighbours land on fewer distinct values, <span class="hl" data-n="block.distinct_neighbours_q4.edited">5</span> in the edited file, <span data-n="block.distinct_neighbours_q4.base">10</span> in the original.</p>
-        </article>
-
-        <article class="note" data-sc-cue="0.517 0.562 0.14 0.14">
-          <h2>The edit survives</h2>
-          <p>Read back from the rounded files and compared with the true edit, its direction holds. Cosine <strong><span data-n="edit.15.cosine.Q8_0">0.9998</span></strong> at 8-bit; <strong><span data-n="edit.15.cosine.Q4_K_M" data-round="2">0.93</span></strong> (layer 15) and <strong><span data-n="edit.19.cosine.Q4_K_M" data-round="2">0.90</span></strong> (layer 19) at 4-bit. 1 would be a perfect copy.</p>
-          <p>Bent a little at 4-bit, but there.</p>
-        </article>
-
-        <article class="note" data-sc-cue="0.602 0.681 0.1 0.08">
-          <h2>Now the answers</h2>
-          <p>100 MATH-500 questions, one answer each, same settings for every version. At 16-bit the edited model gets <strong><span data-n="answers.edited-BF16.correct">61</span></strong> right.</p>
-          <p>One square per question, amber = right, the right ones stacked at the bottom like a level. The knob under the scope turns the precision. Scroll turns it for you, or take it.</p>
-        </article>
-
-        <article class="note" data-sc-cue="0.681 0.771 0.1 0.08">
-          <h2>8-bit: <span data-n="answers.edited-Q8_0.correct">45</span> right</h2>
-          <p>Looping stays low: <span data-n="answers.edited-Q8_0.looping">43</span>%, against <span data-n="answers.base-Q8_0.looping">85</span>% for the original model at 8-bit. But <span data-n="lost.Q8_0.lost">16</span> answers were lost, and <span data-n="lost.Q8_0.hit_limit">14</span> of them ran into the token limit: answers got longer, median <span data-n="answers.edited-BF16.median_tokens">22,643</span> to <span data-n="answers.edited-Q8_0.median_tokens">28,400</span> tokens.</p>
-        </article>
-
-        <article class="note" data-sc-cue="0.771 0.874 0.1 0.08">
-          <h2 data-sc-cue="0.771 0.874 0.1 0.08" data-sc-kinetic="lines">4-bit: 42 right. The edit is still there.</h2>
-          <p>Looping <span data-n="answers.edited-Q4_K_M.looping">29</span>%, against <span data-n="answers.base-Q4_K_M.looping">84</span>% for the original model. This time <span data-n="lost.Q4_K_M.no_right_answer">12</span> of the <span data-n="lost.Q4_K_M.lost">21</span> lost answers finished without the right answer.</p>
-          <p>The fix survived the rounding. The right answers did not.</p>
-        </article>
-      </div>
-
-      <p class="quiet" data-sc-cue="0.564 0.602 0.2 0.2">So the fix came through. Now the answers.</p>
-
-      <div class="verdict-wrap" data-sc-reveal="up" data-sc-reveal-at="0.872 0.905">
-        <article class="verdict" id="verdict" data-sc-cue="0.874 1 0.08 0" tabindex="-1">
-          <h2>Two questions, two different answers</h2>
-          <dl class="answers">
-            <dt>Did the fix survive?</dt><dd><b>Yes.</b> Looping <span data-n="answers.edited-BF16.looping">31</span>% to <span data-n="answers.edited-Q8_0.looping">43</span>% to <span data-n="answers.edited-Q4_K_M.looping">29</span>%; original model <span data-n="answers.base-Q4_K_M.looping">84</span> to <span data-n="answers.base-BF16.looping">88</span>%.</dd>
-            <dt>Is the model still as good?</dt><dd><b>No.</b> Correct <span data-n="answers.edited-BF16.correct">61</span> to <span data-n="answers.edited-Q8_0.correct">45</span> to <span data-n="answers.edited-Q4_K_M.correct">42</span> of 100.</dd>
-          </dl>
-          <p>The prediction was committed before the first run, and it was half wrong: it said 4-bit would erase the edit. It did not. Accuracy fell instead. Why it falls is not measured here.</p>
-          <p class="small">Limits: 100 questions, one answer each (intervals about plus or minus 10 points), one sampler, one model, one edit.</p>
-          <p class="small">The edit: Takehi, Teoh, Zhang, Khattab (MIT CSAIL), "Sparks of Weight-Space Programming", 2 Nov 2026. The idea and the edit are theirs; this repo only measures it.</p>
-          <div class="links">
-            <a class="primary" href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">Code and raw results</a>
-            <a href="https://rikiyat.github.io/blog/weight-space-programming/">The MIT blog post</a>
-          </div>
-        </article>
-      </div>
-
-      <p class="field" aria-live="off"></p>
-
-      <div class="knob" data-on="false">
-        <input id="precision" type="range" min="0" max="2" step="1" value="0" aria-label="Precision of the weights" aria-valuetext="16-bit" disabled>
-        <div class="knob__dial" aria-hidden="true">
-          <svg viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(147,160,151,0.35)" stroke-width="1.5"/>
-            <g stroke="rgba(230,234,228,0.6)" stroke-width="2">
-              <line x1="50" y1="50" x2="50" y2="2" transform="rotate(-60 50 50)" stroke-dasharray="0 40 8"/>
-              <line x1="50" y1="50" x2="50" y2="2" stroke-dasharray="0 40 8"/>
-              <line x1="50" y1="50" x2="50" y2="2" transform="rotate(60 50 50)" stroke-dasharray="0 40 8"/>
-            </g>
-            <g class="knob__cap" transform="rotate(-60 50 50)">
-              <circle cx="50" cy="50" r="33" fill="#161B18" stroke="rgba(230,234,228,0.28)" stroke-width="1.5"/>
-              <circle cx="50" cy="50" r="27" fill="none" stroke="rgba(230,234,228,0.08)" stroke-width="5" stroke-dasharray="1.5 3.2"/>
-              <line x1="50" y1="48" x2="50" y2="22" stroke="#F5B841" stroke-width="4" stroke-linecap="round"/>
-            </g>
-          </svg>
-        </div>
-        <span class="knob__title">PRECISION</span>
-        <div class="knob__stops" role="group" aria-label="Set precision">
-          <button type="button" data-q="0" aria-pressed="true" disabled>16-bit</button>
-          <button type="button" data-q="1" aria-pressed="false" disabled>8-bit</button>
-          <button type="button" data-q="2" aria-pressed="false" disabled>4-bit</button>
-        </div>
-        <span class="knob__who">opens at the rounding</span>
-      </div>
-    </div>
+    <figure class="fig" id="fig-where">
+      <canvas role="img" aria-label="A strip of the model's 24 layers with layers 15 and 19 lit, and below it one matrix from layer 15 drawn from the weight files, with the edited columns in teal."></canvas>
+      <figcaption><b>Figure 2.</b> Top: the model's 24 layers; the edit is in 15 and 19. Bottom: the edited matrix in layer 15, drawn from the real weight files, one pixel per 4 × 4 numbers. Grey: the size of each number. <i class="teal">Teal</i>: how much the edit changed it.</figcaption>
+    </figure>
+    <aside class="note">Measured here, <span data-n="changed_total">130,188</span> numbers actually differ between the two files. In each edited matrix, a single direction carries <span data-n="edit.15.rank1_share" data-pct="3">99.999%</span> of the change.</aside>
   </section>
+
+  <section id="rounding">
+    <h2>What compression does</h2>
+    <p>To run on a laptop or a phone, a model is usually compressed. Every number is stored with fewer bits, so it has to be rounded. The original file uses 16 bits per number. At <strong>8-bit</strong>, each group of 32 neighbouring numbers can use 256 different values. At <strong>4-bit</strong>, only 16.</p>
+
+    <figure class="fig" id="fig-round">
+      <div class="fig__controls knob" role="radiogroup" aria-label="Precision">
+        <button type="button" role="radio" data-q="0" aria-checked="true">16-bit</button>
+        <button type="button" role="radio" data-q="1" aria-checked="false">8-bit</button>
+        <button type="button" role="radio" data-q="2" aria-checked="false">4-bit</button>
+      </div>
+      <canvas role="img" aria-label="32 neighbouring numbers from layer 15 as bars. At 4-bit the small ones snap onto a few shared values."></canvas>
+      <figcaption><b>Figure 3.</b> 32 neighbouring numbers from one row of the edited layer 15, as stored in each file. The tall teal one was changed by the edit; the ring marks where it was before. At 4-bit, the 16 allowed values (lines) must stretch to reach the tall one, so its 31 small neighbours share just <span data-n="block.distinct_neighbours_q4.edited">5</span> values between them. In the original model the same 31 keep <span data-n="block.distinct_neighbours_q4.base">10</span>.</figcaption>
+    </figure>
+    <aside class="note">Whole files average <span data-n="bpw.Q8_0">8.52</span> and <span data-n="bpw.Q4_K_M">5.51</span> bits per number, because some parts are kept at higher precision. The 4-bit file is the stock Q4_K_M recipe, with no importance matrix.</aside>
+  </section>
+
+  <section id="test">
+    <h2>Does the edit survive? Do the answers?</h2>
+    <p>The test: the same 100 questions, same settings, one answer each, for the original and the edited model at 16, 8 and 4 bits. Turn the precision below.</p>
+
+    <figure class="fig fig--main" id="fig-test">
+      <div class="fig__controls knob" role="radiogroup" aria-label="Precision">
+        <button type="button" role="radio" data-q="0" aria-checked="true">16-bit</button>
+        <button type="button" role="radio" data-q="1" aria-checked="false">8-bit</button>
+        <button type="button" role="radio" data-q="2" aria-checked="false">4-bit</button>
+      </div>
+      <canvas role="img" aria-label="Top: the edit in layer 15 read back from each file. Bottom: 100 squares, one per question, amber when the edited model answered right."></canvas>
+      <div class="tip" hidden></div>
+      <figcaption><b>Figure 4.</b> Top: the edit as read back from each file. Similarity is the cosine between the stored edit and the original one; 1 means the same direction. Bottom: 100 questions, one square each, <b class="amber">amber = right</b>. The dashed line marks how many the original model got right at the same precision. Point at a square to see that question at every precision.</figcaption>
+    </figure>
+
+    <p><strong>The edit survives.</strong> Read back from the files, it keeps a similarity of <span data-n="edit.15.cosine.Q8_0">0.9998</span> at 8-bit, and <span data-n="edit.15.cosine.Q4_K_M" data-round="2">0.93</span> (layer 15) and <span data-n="edit.19.cosine.Q4_K_M" data-round="2">0.90</span> (layer 19) at 4-bit. It still does its job: looping stays at <span data-n="answers.edited-Q8_0.looping">43</span>% and <span data-n="answers.edited-Q4_K_M.looping">29</span>%, against <span data-n="answers.base-Q8_0.looping">85</span>% and <span data-n="answers.base-Q4_K_M.looping">84</span>% for the original model at the same precision.</p>
+    <p><strong>The right answers don't.</strong> They fall from <span data-n="answers.edited-BF16.correct">61</span> to <span data-n="answers.edited-Q8_0.correct">45</span> to <span data-n="answers.edited-Q4_K_M.correct">42</span>. Still far above the original model (<span data-n="answers.base-BF16.correct">14</span> to <span data-n="answers.base-Q4_K_M.correct">16</span>), but well below the <span data-n="answers.edited-BF16.correct">61</span> it got uncompressed.</p>
+    <p>The two levels lose answers in different ways. At 8-bit, <span data-n="lost.Q8_0.lost">16</span> answers were lost and <span data-n="lost.Q8_0.hit_limit">14</span> of them ran into the token limit: answers got longer, from a median of <span data-n="answers.edited-BF16.median_tokens">22,643</span> tokens to <span data-n="answers.edited-Q8_0.median_tokens">28,400</span>. At 4-bit, <span data-n="lost.Q4_K_M.lost">21</span> were lost (and <span data-n="lost.Q4_K_M.gained">2</span> gained); <span data-n="lost.Q4_K_M.no_right_answer">12</span> of the lost ones finished on their own, with a wrong or missing answer.</p>
+  </section>
+
+  <section id="table">
+    <h2>All six files</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Model</th><th scope="col">Precision</th><th scope="col">Right answers</th><th scope="col">Looping</th><th scope="col">Median length (tokens)</th></tr></thead>
+        <tbody>
+          <tr><td>original</td><td>16-bit</td><td><span data-n="answers.base-BF16.correct">14</span></td><td><span data-n="answers.base-BF16.looping">88</span>%</td><td><span data-n="answers.base-BF16.median_tokens">32,768</span></td></tr>
+          <tr><td>original</td><td>8-bit</td><td><span data-n="answers.base-Q8_0.correct">15</span></td><td><span data-n="answers.base-Q8_0.looping">85</span>%</td><td><span data-n="answers.base-Q8_0.median_tokens">32,768</span></td></tr>
+          <tr><td>original</td><td>4-bit</td><td><span data-n="answers.base-Q4_K_M.correct">16</span></td><td><span data-n="answers.base-Q4_K_M.looping">84</span>%</td><td><span data-n="answers.base-Q4_K_M.median_tokens">32,768</span></td></tr>
+          <tr class="ed"><td>edited</td><td>16-bit</td><td><span data-n="answers.edited-BF16.correct">61</span></td><td><span data-n="answers.edited-BF16.looping">31</span>%</td><td><span data-n="answers.edited-BF16.median_tokens">22,643</span></td></tr>
+          <tr class="ed"><td>edited</td><td>8-bit</td><td><span data-n="answers.edited-Q8_0.correct">45</span></td><td><span data-n="answers.edited-Q8_0.looping">43</span>%</td><td><span data-n="answers.edited-Q8_0.median_tokens">28,400</span></td></tr>
+          <tr class="ed"><td>edited</td><td>4-bit</td><td><span data-n="answers.edited-Q4_K_M.correct">42</span></td><td><span data-n="answers.edited-Q4_K_M.looping">29</span>%</td><td><span data-n="answers.edited-Q4_K_M.median_tokens">18,082</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small">100 questions, one answer each. With so few, each figure is uncertain by about plus or minus 10 points; the 95% intervals are in <a href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization/blob/main/RESULT.md">RESULT.md</a>.</p>
+  </section>
+
+  <section id="limits">
+    <h2>What this does and does not show</h2>
+    <p>It shows that this edit, on this model, still cuts looping after stock 8-bit and 4-bit compression, while the share of right answers falls. It does not show why accuracy falls; that was not measured. One model, one edit, one sampler, 100 questions.</p>
+    <p>A prediction was committed before the first run. It was half wrong: it said 4-bit would erase the edit. It did not.</p>
+  </section>
+
+  <footer class="end">
+    <h2>Credit</h2>
+    <p>The idea and the edit are not this project's. Takehi, Teoh, Zhang, Khattab (MIT CSAIL), <a href="https://rikiyat.github.io/blog/weight-space-programming/">"Sparks of Weight-Space Programming"</a>, 2 Nov 2026. This project only measures what compression does to it.</p>
+    <p class="links">
+      <a class="primary" href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization">Code and raw results</a>
+      <a href="https://github.com/philipbergman6-glitch/weight-edit-vs-quantization/blob/main/media/post-video.mp4">The post video</a>
+    </p>
+    <p class="small">Every number on this page is read from <code>docs/data/manifest.json</code>, which <code>src/site_data.py</code> builds from the result files. If a number in the text disagrees with it, the page stops with an error.</p>
+  </footer>
+</article>
 </main>
 
-<noscript><p class="noscript">This explainer draws the model's weights with JavaScript. The full write-up, with every number, is in the repository: https://github.com/philipbergman6-glitch/weight-edit-vs-quantization</p></noscript>
-
-<script src="assets/scrollcraft.js"></script>
-<script src="assets/scope.js"></script>
+<noscript><p class="noscript">The figures on this page are drawn with JavaScript. The text and the table above carry every number.</p></noscript>
+<script src="assets/data.js"></script>
 <script src="assets/shots.js"></script>
 <script src="assets/page.js"></script>
 </body>
