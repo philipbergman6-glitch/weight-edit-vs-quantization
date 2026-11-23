@@ -38,7 +38,7 @@
 <body>
 <canvas id="c"></canvas>
 <div class="top">
-  <div class="t" data-in="0" data-out="2.55"><h2>MIT CSAIL edited 2 of this model's 488 weight tensors directly.</h2><p>No training. The edit stops it looping on maths.</p></div>
+  <div class="t" data-in="0" data-out="2.55"><h2>At MIT CSAIL, a large model edited 2 of this model's 488 weight tensors directly.</h2><p>No training. The edit makes it loop far less on maths.</p></div>
   <div class="t" data-in="2.55" data-out="5.5"><h2>Layer 15: the change sits in 64 of 3,584 columns.</h2><p>Amber is the change, drawn from the real weights.</p></div>
   <div class="t" data-in="5.5" data-out="9.1"><h2>Round every weight to <span class="nw">8-bit</span>, then <span class="nw">4-bit</span>.</h2><p>The edit survives: cosine <b data-n="edit.15.cosine.Q8_0">0.9998</b>, then <b data-n="edit.15.cosine.Q4_K_M" data-round="2">0.93</b>.</p></div>
   <div class="t" data-in="9.1" data-out="14.6"><h2>But the right answers fall.</h2><p>Looping stays low, and correct answers go <b><span data-n="answers.edited-BF16.correct">61</span> → <span data-n="answers.edited-Q8_0.correct">45</span> → <span data-n="answers.edited-Q4_K_M.correct">42</span></b> of 100.</p></div>
