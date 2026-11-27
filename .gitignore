@@ -6,6 +6,7 @@ models/
 reading/
 # raw per-question outputs are large; the summary tables in results/ are committed
 results/raw/
+results/raw-64k/
 .venv/
 __pycache__/
 .DS_Store
